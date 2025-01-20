@@ -3,7 +3,7 @@ import { HomeIcon } from "lucide-react";
 
 const Sidebar: FC = () => {
   return (
-    <div className="w-70 max-h-screen bg-white border-r border-gray-200 flex flex-col ">
+    <div className="w-70 max-h-full bg-white border-r border-gray-200 flex flex-col ">
       <div className="flex items-center justify-center py-6">
         <img
           src="/promitto_logo.png"

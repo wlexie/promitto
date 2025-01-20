@@ -3,7 +3,7 @@ import Header from "@/app/components/Header";
 import Card from "@/app/components/Card";
 import Chart from "@/app/components/Chart";
 import Table from "@/app/components/Table";
-import { CreditCard, RefreshCw, Users } from "lucide-react";
+
 import AreaChart from "@/app/components/AreaGraph";
 import PieChart from "@/app/components/PieGraph";
 

@@ -1,13 +1,55 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Calendar, ChevronDown, Star, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Search, ChevronDown, ArrowRight } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import * as XLSX from "xlsx";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { DateRangePicker } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 
 export default function AllTransactionsPage() {
-  // Sample data for transactions
   const initialTransactions = [
+    {
+      customer: "Reagan",
+      transactionId: "TUM123465",
+      amount: "30,000",
+      origin: "UK - Kenya",
+      channel: "MPESA",
+      status: "Successful",
+      date: "2024-12-10T10:00:00",
+      avatar: "/avatar.png",
+    },
+    {
+      customer: "Alex",
+      transactionId: "TUM543210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "2024-11-15T14:30:00",
+      avatar: "/avatar2.jpg",
+    },
+    {
+      customer: "Mike",
+      transactionId: "TUM543210",
+      amount: "500,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "2024-11-15T14:30:00",
+      avatar: "/avatar2.jpg",
+    },
     {
       customer: "Reagan",
       transactionId: "TUM123465",
@@ -43,7 +85,7 @@ export default function AllTransactionsPage() {
       transactionId: "TUM543210",
       amount: "50,000",
       origin: "US - Kenya",
-      channel: "Bank Transfer",
+      channel: "MPESA",
       status: "Pending",
       date: "2024-11-15T15:30:00",
       avatar: "/avatar4.jpg",
@@ -58,63 +100,41 @@ export default function AllTransactionsPage() {
       date: "2024-11-15T14:30:00",
       avatar: "/avatar.png",
     },
-    {
-      customer: "Alice",
-      transactionId: "TUM543210",
-      amount: "5,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "2024-11-15T14:30:00",
-      avatar: "/avatar4.jpg",
-    },
-    {
-      customer: "Mike",
-      transactionId: "TUM543210",
-      amount: "500,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "2024-11-15T14:30:00",
-      avatar: "/avatar2.jpg",
-    },
   ];
 
   const [transactions, setTransactions] = useState(initialTransactions);
   const [searchTerm, setSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(),
+    endDate: new Date(),
+    key: "selection",
+  });
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
-  // Handle search functionality
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: any) => {
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
 
-    const filteredTransactions = initialTransactions.filter((transaction) =>
-      transaction.customer.toLowerCase().includes(value)
+    const filteredTransactions = initialTransactions.filter(
+      (transaction) =>
+        transaction.customer.toLowerCase().includes(value) ||
+        transaction.transactionId.toLowerCase().includes(value) ||
+        transaction.channel.toLowerCase().includes(value)
     );
     setTransactions(filteredTransactions);
   };
 
-  // Handle date range filtering
   const handleFilterByDate = () => {
-    if (!startDate || !endDate) {
-      alert("Please select a start and end date.");
-      return;
-    }
-
+    const { startDate, endDate } = dateRange;
     const filteredTransactions = initialTransactions.filter((transaction) => {
       const transactionDate = new Date(transaction.date);
-      return (
-        transactionDate >= new Date(startDate) &&
-        transactionDate <= new Date(endDate)
-      );
+      return transactionDate >= startDate && transactionDate <= endDate;
     });
     setTransactions(filteredTransactions);
+    setIsDatePickerOpen(false);
   };
 
   const exportToExcel = () => {
-    // Map the transactions to a simpler format (excluding avatar and formatting the date)
     const dataToExport = transactions.map((transaction) => ({
       Customer: transaction.customer,
       "Transaction ID": transaction.transactionId,
@@ -125,61 +145,45 @@ export default function AllTransactionsPage() {
       Date: new Date(transaction.date).toLocaleString(),
     }));
 
-    // Create a new workbook and add the data
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
-
-    // Export the workbook to an Excel file
     XLSX.writeFile(workbook, "Transactions.xlsx");
   };
 
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+
+  const handleRowClick = (transaction: any) => {
+    setSelectedTransaction(transaction);
+  };
+
+  const closeModal = () => setSelectedTransaction(null);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Main Content */}
       <main className="flex-1 p-6 bg-gray-100">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-semibold">All transactions</h1>
           <div className="flex items-center gap-4">
-            {/* Search Bar */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 flex-wrap" />
               <input
                 type="text"
-                placeholder="Search by customer name"
+                placeholder="Search by name, ID, channel..."
                 value={searchTerm}
                 onChange={handleSearch}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-gray-500 focus:border-gray-500"
               />
             </div>
 
-            {/* Filter by Date */}
-            <div className="flex items-center gap-2">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-gray-500 focus:border-gray-500"
-              />
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-gray-500 focus:border-gray-500"
-              />
-              <button
-                onClick={handleFilterByDate}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md shadow-sm hover:bg-gray-100"
-              >
-                Filter by Date
-              </button>
-            </div>
+            <button
+              onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+              className="px-4 py-2 text-gray-700 rounded-md hover:bg-gray-400 border border-gray-300"
+            >
+              Filter by Date
+            </button>
 
-            {/* Export Button */}
             <button
               onClick={exportToExcel}
               className="px-4 py-2 text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
@@ -189,7 +193,29 @@ export default function AllTransactionsPage() {
           </div>
         </div>
 
-        {/* Transactions Table */}
+        {isDatePickerOpen && (
+          <div className="mt-4 bg-white border border-gray-200 rounded-lg shadow-md p-4">
+            <DateRangePicker
+              ranges={[dateRange]}
+              onChange={(item: any) => setDateRange(item.selection)}
+            />
+            <div className="mt-4 flex justify-end gap-4">
+              <button
+                onClick={() => setIsDatePickerOpen(false)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFilterByDate}
+                className="px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700"
+              >
+                Apply Filter
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
           <table className="w-full table-auto text-left">
             <thead className="bg-white">
@@ -206,16 +232,17 @@ export default function AllTransactionsPage() {
             </thead>
             <tbody>
               {transactions.length > 0 ? (
-                transactions.map((transaction, index) => (
+                transactions.map((transaction) => (
                   <tr
-                    key={index}
-                    className="text-gray-700 text-sm hover:bg-gray-50"
+                    key={transaction.id}
+                    className="text-gray-700 cursor-pointer text-sm hover:bg-gray-50"
+                    onClick={() => handleRowClick(transaction)}
                   >
-                    <td className="py-3 px-4 flex items-center gap-2">
+                    <td className="py-4 px-6 flex items-center gap-2">
                       <img
                         src={transaction.avatar}
                         alt={transaction.customer}
-                        className="h-8 w-8 rounded-full object-cover"
+                        className="h-8 w-8 rounded-full object-cover "
                       />
                       {transaction.customer}
                     </td>
@@ -249,6 +276,137 @@ export default function AllTransactionsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Slide-In Modal */}
+        {selectedTransaction && (
+          <div className="fixed inset-0 flex justify-end z-50">
+            <div
+              className="bg-black bg-opacity-50 w-full h-full"
+              onClick={closeModal}
+            ></div>
+            <div className="bg-white w-[40rem] h-full shadow-lg p-8 overflow-y-auto relative">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b pb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">
+                    #{selectedTransaction.transactionId}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {selectedTransaction.date}
+                  </p>
+                </div>
+                <button
+                  className="text-gray-500 hover:text-gray-800 text-2xl absolute top-4 right-4"
+                  onClick={closeModal}
+                >
+                  &times;
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="mt-6">
+                {/* Yellow Line */}
+                <div className="border-l-4 border-yellow-500 pl-6 mb-6">
+                  {/* Customer Section */}
+
+                  <div className="mb-6">
+                    <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
+                      <p className="text-lg font-bold text-gray-800 mb-4">
+                        Customer
+                      </p>
+                      <img
+                        src={selectedTransaction.avatar}
+                        alt="Customer Avatar"
+                        className="w-12 h-12 rounded-full object-cover text-right"
+                      />
+
+                      <p className="text-gray-400">Name:</p>
+                      <p className="font-semibold">
+                        {selectedTransaction.customer}
+                      </p>
+                      <p className="text-gray-400">Phone No.</p>
+                      <p>+254 722999888</p>
+                    </div>
+                  </div>
+
+                  {/* Transaction Section */}
+                  <div className="mb-6">
+                    <p className="text-lg font-bold text-gray-800 mb-4">
+                      Transaction
+                    </p>
+                    <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
+                      <p className="text-gray-400">Amount:</p>
+                      <p className="font-semibold">
+                        {selectedTransaction.amount}
+                      </p>
+                      <p className="text-gray-400">Channel:</p>
+                      <p>{selectedTransaction.channel}</p>
+                      <p className="text-gray-400">Purpose:</p>
+                      <p>Deposit</p>
+                      <p className="text-gray-400">Status:</p>
+                      <p className="font-semibold text-green-600">
+                        {selectedTransaction.status}
+                      </p>
+                      <p className="text-gray-400">Origin:</p>
+                      <p>{selectedTransaction.origin}</p>
+                      <p className="text-gray-400">Destination:</p>
+                      <p>Kenya}</p>
+                    </div>
+                  </div>
+
+                  {/* Rates Section */}
+                  <div className="mb-6">
+                    <p className="text-lg font-bold text-gray-800 mb-4">
+                      Rates
+                    </p>
+                    <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
+                      <p className="text-gray-400">Exchange Rate:</p>
+                      <p>1GBP = 100 KES</p>
+                      <p className="text-gray-400">Transaction Fee:</p>
+                      <p>0.00</p>
+                    </div>
+                  </div>
+
+                  {/* Receiver Section */}
+                  <div>
+                    <p className="text-lg font-bold text-gray-800 mb-4">
+                      Receiver
+                    </p>
+                    <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
+                      <p className="text-gray-400">Name:</p>
+                      <p>Promitto</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <Pagination className="text-xl mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="/all-transactions">1</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#" isActive>
+                2
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#">3</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext href="#" />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </main>
     </div>
   );
