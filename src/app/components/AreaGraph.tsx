@@ -38,8 +38,7 @@ function AreaGraph() {
   return (
     <Card className="bg-white">
       <CardHeader>
-        <CardTitle>Transaction Volume</CardTitle>
-        <CardDescription>Showing total transaction volumes</CardDescription>
+        <CardTitle className="text-xl">Transaction Volume</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

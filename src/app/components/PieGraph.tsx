@@ -34,10 +34,9 @@ const chartConfig = {
 
 function PieGraph() {
   return (
-    <Card className="flex flex-col bg-white">
+    <Card className="flex flex-col bg-white ">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Label List</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle className="text-xl">Revenue Breakdown</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -64,13 +63,12 @@ function PieGraph() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          <span className="inline-flex h-4 w-4 rounded-sm bg-[#e6bf7cfa]"></span>
+          <span className="inline-flex h-6 w-6 rounded-sm bg-[#e6bf7cfa]"></span>
           M-PESA
-          <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          <span className="inline-flex h-4 w-4 rounded-sm bg-[#031254] mr-2"></span>
-          Bank
+          <span className="inline-flex h-6 w-6 rounded-sm bg-[#031254] -ml-6"></span>
+          &nbsp;Bank
         </div>
       </CardFooter>
     </Card>

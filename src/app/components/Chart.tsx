@@ -34,9 +34,9 @@ const chartConfig = {
 
 function Chart() {
   return (
-    <Card className="bg-white">
+    <Card className="bg-white ">
       <CardHeader>
-        <CardTitle>Top 5 transactions</CardTitle>
+        <CardTitle className="text-xl">Top 5 transactions</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
