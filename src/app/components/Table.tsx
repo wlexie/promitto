@@ -1,7 +1,20 @@
 import { FC, useState } from "react";
 
+interface Transaction {
+  avatar: string;
+  id: string;
+  customer: string;
+  amount: string;
+  origin: string;
+  destination: string;
+  channel: string;
+  status: string;
+  date: string;
+  purpose: string;
+}
+
 const Table: FC = () => {
-  const transactions = [
+  const transactions: Transaction[] = [
     {
       avatar: "/avatar.png",
       id: "TUM123465",
@@ -11,7 +24,7 @@ const Table: FC = () => {
       destination: "Kenya",
       channel: "MPESA",
       status: "Successful",
-      date: "12/10/24, 10:00am",
+      date: "12/16/2024, 10:00:00 AM",
       purpose: "Deposit",
     },
     {
@@ -23,48 +36,49 @@ const Table: FC = () => {
       destination: "Kenya",
       channel: "MPESA",
       status: "Successful",
-      date: "12/10/24, 10:00am",
+      date: "12/10/2024, 10:00:00 AM",
       purpose: "Loan repayment",
     },
     {
       avatar: "/avatar.png",
-      id: "TUM123466",
+      id: "TUM123467",
       customer: "Reagan",
       amount: "30,000",
       origin: "UK",
       destination: "Kenya",
       channel: "MPESA",
       status: "Successful",
-      date: "12/10/24, 10:00am",
+      date: "11/11/2024, 10:00:00 AM",
       purpose: "Loan repayment",
     },
     {
       avatar: "/avatar3.jpg",
-      id: "TUM123466",
+      id: "TUM123468",
       customer: "Mike",
       amount: "30,000",
       origin: "UK",
       destination: "Kenya",
       channel: "MPESA",
       status: "Successful",
-      date: "12/10/24, 10:00am",
+      date: "12/12/2024, 10:00:00 AM",
       purpose: "Loan repayment",
     },
     {
       avatar: "/avatar4.jpg",
-      id: "TUM123466",
+      id: "TUM123469",
       customer: "Zach",
       amount: "30,000",
       origin: "UK",
       destination: "Kenya",
       channel: "MPESA",
       status: "Successful",
-      date: "12/10/24, 10:00am",
+      date: "12/10/2024, 10:00:00 AM",
       purpose: "Loan repayment",
     },
   ];
 
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
 
   const handleRowClick = (transaction: any) => {
     setSelectedTransaction(transaction);
@@ -78,7 +92,7 @@ const Table: FC = () => {
         <h2 className="px-6 py-4 font-semibold text-gray-800 border-b">
           Latest Transactions
         </h2>
-        <table className="w-full text-sm text-left text-gray-700">
+        <table className="w-full text-sm text-left text-gray-700 h-full">
           <thead className="bg-white ">
             <tr>
               <th className="px-6 py-3">Customer</th>

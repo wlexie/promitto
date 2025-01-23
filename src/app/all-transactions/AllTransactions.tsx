@@ -18,8 +18,19 @@ import { DateRangePicker } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
+interface Transaction {
+  customer: string;
+  transactionId: string;
+  amount: string;
+  origin: string;
+  channel: string;
+  status: string;
+  date: string;
+  avatar: string;
+}
+
 export default function AllTransactionsPage() {
-  const initialTransactions = [
+  const initialTransactions: Transaction[] = [
     {
       customer: "Reagan",
       transactionId: "TUM123465",
@@ -27,7 +38,7 @@ export default function AllTransactionsPage() {
       origin: "UK - Kenya",
       channel: "MPESA",
       status: "Successful",
-      date: "2024-12-10T10:00:00",
+      date: "12/10/2024, 10:00:00 AM",
       avatar: "/avatar.png",
     },
     {
@@ -37,7 +48,7 @@ export default function AllTransactionsPage() {
       origin: "US - Kenya",
       channel: "Bank Transfer",
       status: "Pending",
-      date: "2024-11-15T14:30:00",
+      date: "12/13/2024, 12:00:00 AM",
       avatar: "/avatar2.jpg",
     },
     {
@@ -47,7 +58,7 @@ export default function AllTransactionsPage() {
       origin: "US - Kenya",
       channel: "Bank Transfer",
       status: "Pending",
-      date: "2024-11-15T14:30:00",
+      date: "11/15/2024, 14:30:00 PM",
       avatar: "/avatar2.jpg",
     },
     {
@@ -57,7 +68,7 @@ export default function AllTransactionsPage() {
       origin: "UK - Kenya",
       channel: "MPESA",
       status: "Successful",
-      date: "2024-12-10T10:00:00",
+      date: "12/18/2024, 09:00:00 AM",
       avatar: "/avatar.png", // Replace with your avatar path
     },
     {
@@ -67,7 +78,7 @@ export default function AllTransactionsPage() {
       origin: "US - Kenya",
       channel: "Bank Transfer",
       status: "Pending",
-      date: "2024-11-15T14:30:00",
+      date: "12/10/2024, 10:00:00 AM",
       avatar: "/avatar2.jpg",
     },
     {
@@ -77,7 +88,7 @@ export default function AllTransactionsPage() {
       origin: "US - Kenya",
       channel: "Bank Transfer",
       status: "Pending",
-      date: "2024-11-15T14:30:00",
+      date: "12/10/2024, 10:00:00 AM",
       avatar: "/avatar4.jpg",
     },
     {
@@ -87,7 +98,7 @@ export default function AllTransactionsPage() {
       origin: "US - Kenya",
       channel: "MPESA",
       status: "Pending",
-      date: "2024-11-15T15:30:00",
+      date: "12/10/2024, 10:00:00 AM",
       avatar: "/avatar4.jpg",
     },
     {
@@ -97,12 +108,13 @@ export default function AllTransactionsPage() {
       origin: "US - Kenya",
       channel: "Bank Transfer",
       status: "Pending",
-      date: "2024-11-15T14:30:00",
+      date: "12/10/2024, 10:00:00 AM",
       avatar: "/avatar.png",
     },
   ];
 
-  const [transactions, setTransactions] = useState(initialTransactions);
+  const [transactions, setTransactions] =
+    useState<Transaction[]>(initialTransactions);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
@@ -151,7 +163,8 @@ export default function AllTransactionsPage() {
     XLSX.writeFile(workbook, "Transactions.xlsx");
   };
 
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
 
   const handleRowClick = (transaction: any) => {
     setSelectedTransaction(transaction);
@@ -234,7 +247,7 @@ export default function AllTransactionsPage() {
               {transactions.length > 0 ? (
                 transactions.map((transaction) => (
                   <tr
-                    key={transaction.id}
+                    key={transaction.transactionId}
                     className="text-gray-700 cursor-pointer text-sm hover:bg-gray-50"
                     onClick={() => handleRowClick(transaction)}
                   >
@@ -289,10 +302,10 @@ export default function AllTransactionsPage() {
               <div className="flex items-center justify-between border-b pb-4">
                 <div>
                   <h3 className="text-xl font-bold text-gray-800">
-                    #{selectedTransaction.transactionId}
+                    #{selectedTransaction?.transactionId}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {selectedTransaction.date}
+                    {selectedTransaction?.date}
                   </p>
                 </div>
                 <button
@@ -350,7 +363,7 @@ export default function AllTransactionsPage() {
                       <p className="text-gray-400">Origin:</p>
                       <p>{selectedTransaction.origin}</p>
                       <p className="text-gray-400">Destination:</p>
-                      <p>Kenya}</p>
+                      <p>Kenya</p>
                     </div>
                   </div>
 

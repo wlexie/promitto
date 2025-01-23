@@ -1,6 +1,6 @@
 import Sidebar from "@/app/components/Sidebar";
 import Header from "@/app/components/Header";
-import Card from "@/app/components/Card";
+// import Card from "@/app/components/Card";
 import Chart from "@/app/components/Chart";
 import Table from "@/app/components/Table";
 
