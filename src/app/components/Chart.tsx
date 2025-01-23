@@ -1,12 +1,12 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
+//import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
   CardContent,
-  CardFooter,
+  //CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";

@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { Search, ChevronDown, ArrowRight } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import * as XLSX from "xlsx";
 import {

@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { SearchIcon, FilterIcon } from "lucide-react";
+import { FilterIcon } from "lucide-react";
 
 const Header: FC = () => {
   return (

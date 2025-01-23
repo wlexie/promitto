@@ -1,5 +1,4 @@
 import { FC } from "react";
-import { HomeIcon } from "lucide-react";
 
 const Sidebar: FC = () => {
   return (

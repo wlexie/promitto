@@ -1,13 +1,13 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
+//import { TrendingUp } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
+  //CardDescription,
+  //CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
