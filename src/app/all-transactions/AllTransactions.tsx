@@ -33,7 +33,7 @@ export default function AllTransactionsPage() {
   const initialTransactions: Transaction[] = [
     {
       customer: "Reagan",
-      transactionId: "TUM123465",
+      transactionId: "TUM1234659",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -53,7 +53,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Mike",
-      transactionId: "TUM543210",
+      transactionId: "TUM543211",
       amount: "500,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -63,7 +63,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Reagan",
-      transactionId: "TUM123465",
+      transactionId: "TUM123469",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -73,7 +73,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alex",
-      transactionId: "TUM543210",
+      transactionId: "TUM543212",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -93,7 +93,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alice",
-      transactionId: "TUM543210",
+      transactionId: "TUM5433210",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "MPESA",
@@ -103,7 +103,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Zach",
-      transactionId: "TUM543210",
+      transactionId: "TUM5432107",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
