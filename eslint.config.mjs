@@ -12,6 +12,8 @@ const compat = new FlatCompat({
 // const eslintConfig = [
 //   ...compat.extends("next/core-web-vitals", "next/typescript"),
 // ];
+
+//disable lint rules
 const eslintConfig = [
   ...compat.config({
     extends: ['next'],
