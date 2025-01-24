@@ -1,78 +1,101 @@
 "use client";
 
-//import { TrendingUp } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import {
-  Card,
-  CardContent,
-  //CardDescription,
-  //CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 const chartData = [
-  { day: "Sun", number: 186 },
-  { day: "Mon", number: 305 },
-  { day: "Tue", number: 237 },
-  { day: "Wed", number: 73 },
-  { day: "Thur", number: 209 },
-  { day: "Fri", number: 214 },
-  { day: "Sat", number: 214 },
+  { day: "Sun", number: 10 },
+  { day: "Mon", number: 35 },
+  { day: "Tue", number: 20 },
+  { day: "Wed", number: 10 },
+  { day: "Thur", number: 15 },
+  { day: "Fri", number: 25 },
+  { day: "Sat", number: 10 },
 ];
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(43.3 96.4% 56.3%)",
-  },
-} satisfies ChartConfig;
 
 function AreaGraph() {
   return (
     <Card className="bg-white">
-      <CardHeader>
+      <CardHeader className="flex justify-between items-center">
         <CardTitle className="text-xl">Transaction Volume</CardTitle>
+        <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-md">
+          Daily
+        </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ResponsiveContainer width="100%" height={300}>
           <AreaChart
-            accessibilityLayer
             data={chartData}
             margin={{
-              left: 12,
-              right: 12,
+              top: 10,
+              right: 20,
+              left: 10,
+              bottom: 20,
             }}
           >
-            <CartesianGrid vertical={false} />
+            {/* Y-Axis */}
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              fontSize={12}
+              label={{
+                value: "No. of Transactions",
+                angle: -90,
+                position: "insideLeft",
+                fontSize: 12,
+              }}
+              domain={[0, 40]}
+            />
+            {/* X-Axis */}
             <XAxis
               dataKey="day"
               tickLine={false}
               axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickMargin={10}
+              fontSize={12}
+              label={{
+                value: "Days",
+                position: "insideBottom",
+                offset: -10,
+                fontSize: 12,
+              }}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
+            {/* Horizontal Grid Lines */}
+            <CartesianGrid
+              vertical={false}
+              strokeDasharray="3 3"
+              opacity={0.3}
             />
+            {/* Tooltip */}
+            <Tooltip
+              cursor={{ stroke: "gray", strokeWidth: 1 }}
+              contentStyle={{ borderRadius: 8 }}
+            />
+            {/* Highlighted Reference Line */}
+            <ReferenceLine x="Mon" strokeDasharray="4 4" stroke="#A0AEC0" />
+            {/* Area Chart */}
             <Area
               dataKey="number"
-              type="natural"
-              fill="var(--color-desktop)"
-              fillOpacity={0.4}
-              stroke="var(--color-desktop)"
+              type="monotone"
+              stroke="#FFBF00"
+              fill="#FFBF00"
+              fillOpacity={0.3}
             />
           </AreaChart>
-        </ChartContainer>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   );
 }
+
 export default AreaGraph;

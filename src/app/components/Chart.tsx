@@ -1,71 +1,81 @@
 "use client";
 
 //import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, Tooltip, Label } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  //CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 const chartData = [
-  { transactionID: "TRX23300", amount: 186000 },
-  { transactionID: "TRX23200", amount: 305000 },
-  { transactionID: "TDB12900", amount: 237000 },
-  { transactionID: "TAX87800", amount: 73000 },
-  { transactionID: "SZAY123B", amount: 209000 },
-  { transactionID: "TBVSDC99", amount: 21400 },
+  { transactionID: "TRX1004", amount: 370000 },
+  { transactionID: "TRX1001", amount: 260000 },
+  { transactionID: "TRX1009", amount: 225000 },
+  { transactionID: "TRX1006", amount: 170000 },
+  { transactionID: "TRX10012", amount: 120000 },
 ];
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "#FFBF00",
-  },
-} satisfies ChartConfig;
 
 function Chart() {
   return (
-    <Card className="bg-white ">
+    <Card className="bg-white shadow-md p-4 rounded-md">
       <CardHeader>
-        <CardTitle className="text-xl">Top 5 transactions</CardTitle>
+        <CardTitle className="text-lg font-semibold">
+          Top 5 Transactions
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <BarChart
-            accessibilityLayer
-            data={chartData}
-            layout="vertical"
-            margin={{
-              left: -20,
+        <BarChart
+          width={500}
+          height={300}
+          data={chartData}
+          layout="vertical"
+          margin={{ top: 20, right: 60, left: 0, bottom: 20 }}
+        >
+          {/* X-Axis */}
+          <XAxis
+            type="number"
+            tick={{
+              fill: "#828282",
+              fontSize: 12,
             }}
+            tickFormatter={(value: number) => `${value / 1000}K`}
+            axisLine={false}
+            tickLine={false}
           >
-            <XAxis type="number" dataKey="amount" hide />
-            <YAxis
-              dataKey="transactionID"
-              type="category"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+            <Label
+              value="Transactions in KES"
+              position="bottom"
+              offset={10}
+              style={{
+                textAnchor: "middle",
+                fontSize: "14px",
+                fill: "#333",
+              }}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="amount" fill="var(--color-desktop)" radius={5} />
-          </BarChart>
-        </ChartContainer>
+          </XAxis>
+
+          {/* Y-Axis */}
+          <YAxis
+            dataKey="transactionID"
+            type="category"
+            tick={{
+              fill: "#333",
+              fontSize: 12,
+            }}
+            tickLine={false}
+            axisLine={false}
+          ></YAxis>
+
+          <Tooltip
+            cursor={{ fill: "rgba(255, 191, 0, 0.2)" }}
+            formatter={(value: number) => [
+              `KES ${value.toLocaleString()}`,
+              "Amount",
+            ]}
+          />
+          <Bar dataKey="amount" fill="#FFBF00" radius={[0, 10, 10, 0]} />
+        </BarChart>
       </CardContent>
     </Card>
   );
 }
+
 export default Chart;

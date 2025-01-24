@@ -1,77 +1,64 @@
 "use client";
 
-//import { TrendingUp } from "lucide-react";
-import { LabelList, Pie, PieChart } from "recharts";
+import { Pie, PieChart, Cell } from "recharts";
 
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-const chartData = [
-  { browser: "M-PESA", visitors: 200000, fill: "#FFBF00" },
-  { browser: "BANK", visitors: 50000, fill: "#031254" },
-];
 
-const chartConfig = {
-  visitors: {
-    label: "M-PESA",
-  },
-  chrome: {
-    label: "BANK",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
+const chartData = [
+  { name: "M-PESA", value: 200000, fill: "#FFBF00" },
+  { name: "Bank", value: 50000, fill: "#031254" },
+];
 
 function PieGraph() {
   return (
-    <Card className="flex flex-col bg-white ">
+    <Card className="flex flex-col bg-white">
       <CardHeader className="items-center pb-0">
         <CardTitle className="text-xl">Revenue Breakdown</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px] [&_.recharts-text]:fill-background"
-        >
-          <PieChart>
-            <ChartTooltip
-              content={<ChartTooltipContent nameKey="visitors" hideLabel />}
-            />
-            <Pie data={chartData} dataKey="visitors">
-              <LabelList
-                dataKey="browser"
-                className="fill-background"
-                stroke="none"
-                fontSize={12}
-                formatter={(value: keyof typeof chartConfig) =>
-                  chartConfig[value]?.label
-                }
-              />
+        <div className="mx-auto aspect-square max-h-[250px]">
+          <PieChart width={250} height={250}>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+              labelLine={false}
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} />
+              ))}
             </Pie>
           </PieChart>
-        </ChartContainer>
-      </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          <span className="inline-flex h-6 w-6 rounded-sm bg-[#e6bf7cfa]"></span>
-          M-PESA
         </div>
-        <div className="leading-none text-muted-foreground">
-          <span className="inline-flex h-6 w-6 rounded-sm bg-[#031254] -ml-6"></span>
-          &nbsp;Bank
+      </CardContent>
+      <CardFooter className="flex flex-col gap-2 text-sm">
+        <div className="flex items-center gap-2 font-medium leading-none">
+          <span
+            className="inline-block h-4 w-4 rounded-sm"
+            style={{ backgroundColor: "#FFBF00" }}
+          ></span>
+          M-PESA KES 200,000
+        </div>
+        <div className="flex items-center gap-2 font-medium leading-none">
+          <span
+            className="inline-block h-4 w-4 rounded-sm"
+            style={{ backgroundColor: "#031254" }}
+          ></span>
+          Bank KES 50,000
         </div>
       </CardFooter>
     </Card>
   );
 }
+
 export default PieGraph;

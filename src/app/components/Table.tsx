@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 
 interface Transaction {
   avatar: string;
@@ -80,11 +80,23 @@ const Table: FC = () => {
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  useEffect(() => {
+    if (selectedTransaction) {
+      setIsModalVisible(true);
+    }
+  }, [selectedTransaction]);
+
   const handleRowClick = (transaction: any) => {
     setSelectedTransaction(transaction);
   };
 
-  const closeModal = () => setSelectedTransaction(null);
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setTimeout(() => {
+      setSelectedTransaction(null);
+    }, 300); // Matches the transition duration
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
@@ -139,103 +151,133 @@ const Table: FC = () => {
 
       {/* Slide-In Modal */}
       {selectedTransaction && (
-        <div className="fixed inset-0 flex justify-end z-50">
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Background Overlay */}
           <div
             className="bg-black bg-opacity-50 w-full h-full"
             onClick={closeModal}
           ></div>
-          <div className="bg-white w-[40rem] h-full shadow-lg p-8 overflow-y-auto relative">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b pb-4">
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">
-                  #{selectedTransaction.id}
+
+          {/* Modal with Slide-in Transition */}
+          <div
+            className={`bg-white w-[28rem] h-full shadow-lg p-8 overflow-y-auto fixed right-0 transform transition-transform duration-300 ${
+              isModalVisible ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            {/* Close Button */}
+            <button
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
+              onClick={closeModal}
+            >
+              &times;
+            </button>
+
+            {/* Modal Content */}
+            <div className="mt-6 space-y-8">
+              {/* Confirmation Section */}
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-green-800"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 10-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mt-4">
+                  KES {selectedTransaction.amount}
                 </h3>
-                <p className="text-sm text-gray-500">
-                  {selectedTransaction.date}
+                <p className="text-gray-500 mt-1">
+                  Successfully sent to{" "}
+                  <span className="text-black font-semibold text-md">
+                    Promitto LTD
+                  </span>
+                </p>
+                <p className="text-md text-gray-400 mt-1">
+                  on{" "}
+                  <span className="text-black font-semibold">
+                    {selectedTransaction.date}
+                  </span>
                 </p>
               </div>
-              <button
-                className="text-gray-500 hover:text-gray-800 text-2xl absolute top-4 right-4"
-                onClick={closeModal}
-              >
-                &times;
-              </button>
-            </div>
 
-            {/* Content */}
-            <div className="mt-6">
-              {/* Yellow Line */}
-              <div className="border-l-4 border-yellow-500 pl-6 mb-6">
-                {/* Customer Section */}
+              {/* Transaction Details */}
+              <div className="mt-6">
+                <div className="grid grid-cols-2 gap-y-4 text-gray-700">
+                  <p className="text-gray-400">Transaction ID:</p>
+                  <p>#{selectedTransaction.id}</p>
+                  <p className="text-gray-400">Channel:</p>
+                  <p>{selectedTransaction.channel}</p>
+                  <p className="text-gray-400">Purpose:</p>
+                  <p>{selectedTransaction.purpose}</p>
+                  <p className="text-gray-400">Origin:</p>
+                  <p>{selectedTransaction.origin}</p>
+                  <p className="text-gray-400">Destination:</p>
+                  <p>{selectedTransaction.destination}</p>
+                </div>
+              </div>
 
-                <div className="mb-6">
-                  <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
-                    <p className="text-lg font-bold text-gray-800 mb-4">
-                      Customer
-                    </p>
+              {/* Exchange Rate */}
+              <div>
+                <div className="grid grid-cols-2 gap-y-4 text-gray-700 border border-dotted py-2 px-2 border-gray-300">
+                  <p className="text-gray-400">Exchange Rate:</p>
+                  <p>1GBP = 100 KES</p>
+                  <p className="text-gray-400">Transaction Fee:</p>
+                  <p>0.00</p>
+                </div>
+              </div>
+
+              <div className="mt-8 border-t pt-4 ">
+                <h4 className="text-lg font-bold text-gray-800 mb-4 ">
+                  Sender
+                </h4>
+                <div className="flex items-center space-x-4">
+                  {/* Avatar */}
+                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center">
                     <img
                       src={selectedTransaction.avatar}
-                      alt="Customer Avatar"
-                      className="w-12 h-12 rounded-full object-cover text-right"
+                      alt="Sender Avatar"
+                      className="w-full h-full rounded-full object-cover"
                     />
-
-                    <p className="text-gray-400">Name:</p>
-                    <p className="font-semibold">
+                  </div>
+                  {/* Sender Info */}
+                  <div>
+                    <p className="text-gray-700 font-semibold">
                       {selectedTransaction.customer}
                     </p>
-                    <p className="text-gray-400">Phone No.</p>
-                    <p>+254 722999888</p>
-                  </div>
-                </div>
-
-                {/* Transaction Section */}
-                <div className="mb-6">
-                  <p className="text-lg font-bold text-gray-800 mb-4">
-                    Transaction
-                  </p>
-                  <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
-                    <p className="text-gray-400">Amount:</p>
-                    <p className="font-semibold">
-                      {selectedTransaction.amount}
-                    </p>
-                    <p className="text-gray-400">Channel:</p>
-                    <p>{selectedTransaction.channel}</p>
-                    <p className="text-gray-400">Purpose:</p>
-                    <p>{selectedTransaction.purpose}</p>
-                    <p className="text-gray-400">Status:</p>
-                    <p className="font-semibold text-green-600">
-                      {selectedTransaction.status}
-                    </p>
-                    <p className="text-gray-400">Origin:</p>
-                    <p>{selectedTransaction.origin}</p>
-                    <p className="text-gray-400">Destination:</p>
-                    <p>{selectedTransaction.destination}</p>
-                  </div>
-                </div>
-
-                {/* Rates Section */}
-                <div className="mb-6">
-                  <p className="text-lg font-bold text-gray-800 mb-4">Rates</p>
-                  <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
-                    <p className="text-gray-400">Exchange Rate:</p>
-                    <p>1GBP = 100 KES</p>
-                    <p className="text-gray-400">Transaction Fee:</p>
-                    <p>0.00</p>
-                  </div>
-                </div>
-
-                {/* Receiver Section */}
-                <div>
-                  <p className="text-lg font-bold text-gray-800 mb-4">
-                    Receiver
-                  </p>
-                  <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
-                    <p className="text-gray-400">Name:</p>
-                    <p>Promitto</p>
+                    {/*phone number*/}
+                    <p className="text-gray-500 text-lg">+254 721533799</p>
                   </div>
                 </div>
               </div>
+
+              {/* Download Receipt */}
+
+              {/* <div className="mt-8 text-center">
+                  <button className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Download Receipt
+                  </button>
+                </div> */}
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, ArrowRight } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import * as XLSX from "xlsx";
@@ -26,6 +26,7 @@ interface Transaction {
   status: string;
   date: string;
   avatar: string;
+  purpose: string;
 }
 
 export default function AllTransactionsPage() {
@@ -37,8 +38,9 @@ export default function AllTransactionsPage() {
       origin: "UK - Kenya",
       channel: "MPESA",
       status: "Successful",
-      date: "12/10/2024, 10:00:00 AM",
+      date: "07/10/2024, 10:00:00 AM",
       avatar: "/avatar.png",
+      purpose: "Deposit",
     },
     {
       customer: "Alex",
@@ -49,6 +51,7 @@ export default function AllTransactionsPage() {
       status: "Pending",
       date: "12/13/2024, 12:00:00 AM",
       avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
     },
     {
       customer: "Mike",
@@ -57,8 +60,9 @@ export default function AllTransactionsPage() {
       origin: "US - Kenya",
       channel: "Bank Transfer",
       status: "Pending",
-      date: "11/15/2024, 14:30:00 PM",
+      date: "11/15/2024, 08:30:00 AM",
       avatar: "/avatar2.jpg",
+      purpose: "Deposit",
     },
     {
       customer: "Reagan",
@@ -68,7 +72,8 @@ export default function AllTransactionsPage() {
       channel: "MPESA",
       status: "Successful",
       date: "12/18/2024, 09:00:00 AM",
-      avatar: "/avatar.png", // Replace with your avatar path
+      avatar: "/avatar.png",
+      purpose: "Loan Repayment",
     },
     {
       customer: "Alex",
@@ -77,8 +82,9 @@ export default function AllTransactionsPage() {
       origin: "US - Kenya",
       channel: "Bank Transfer",
       status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
+      date: "04/10/2024, 10:00:00 AM",
       avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
     },
     {
       customer: "Alice",
@@ -89,6 +95,7 @@ export default function AllTransactionsPage() {
       status: "Pending",
       date: "12/10/2024, 10:00:00 AM",
       avatar: "/avatar4.jpg",
+      purpose: "Deposit",
     },
     {
       customer: "Alice",
@@ -99,6 +106,7 @@ export default function AllTransactionsPage() {
       status: "Pending",
       date: "12/10/2024, 10:00:00 AM",
       avatar: "/avatar4.jpg",
+      purpose: "Loan Repayment",
     },
     {
       customer: "Zach",
@@ -109,11 +117,13 @@ export default function AllTransactionsPage() {
       status: "Pending",
       date: "12/10/2024, 10:00:00 AM",
       avatar: "/avatar.png",
+      purpose: "Loan Repayment",
     },
   ];
 
   const [transactions, setTransactions] =
     useState<Transaction[]>(initialTransactions);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
@@ -121,6 +131,18 @@ export default function AllTransactionsPage() {
     key: "selection",
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isExportModalVisible, setIsExportModalVisible] = useState(false);
+  const [exportType, setExportType] = useState("all");
+  const [fileType, setFileType] = useState("csv");
+
+  const exportData = () => {
+    if (fileType === "csv") {
+      console.log("Exporting data as CSV...");
+    } else {
+      console.log("Exporting data as Excel...");
+    }
+    closeExportModal();
+  };
 
   const handleSearch = (e: any) => {
     const value = e.target.value.toLowerCase();
@@ -164,12 +186,31 @@ export default function AllTransactionsPage() {
 
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  useEffect(() => {
+    if (selectedTransaction) {
+      setIsModalVisible(true);
+    }
+  }, [selectedTransaction]);
 
   const handleRowClick = (transaction: any) => {
     setSelectedTransaction(transaction);
   };
 
-  const closeModal = () => setSelectedTransaction(null);
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setTimeout(() => {
+      setSelectedTransaction(null);
+    }, 300); // Matches the transition duration
+  };
+
+  const openExportModal = () => {
+    setIsExportModalVisible(true);
+  };
+
+  const closeExportModal = () => {
+    setIsExportModalVisible(false);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -197,13 +238,100 @@ export default function AllTransactionsPage() {
             </button>
 
             <button
-              onClick={exportToExcel}
+              onClick={openExportModal}
               className="px-4 py-2 text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
             >
-              Export to excel
+              Export
             </button>
           </div>
         </div>
+
+        {isExportModalVisible && (
+          <div className="fixed inset-0 z-50 flex justify-end">
+            {/* Background Overlay */}
+            <div
+              className="bg-black bg-opacity-50 w-full h-full"
+              onClick={closeExportModal}
+            ></div>
+
+            {/* Modal with Slide-in Transition */}
+            <div
+              className="bg-white w-[36rem] h-full shadow-lg p-8 overflow-y-auto relative transform transition-transform duration-300 translate-x-full"
+              style={{ transform: "translateX(0)" }}
+            >
+              {/* Close Button */}
+              <button
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
+                onClick={closeExportModal}
+              >
+                &times;
+              </button>
+
+              <div className="mt-6 space-y-6">
+                <h2 className="text-xl font-bold">Export Transactions</h2>
+
+                <div>
+                  <h3 className="font-semibold text-gray-700">Options:</h3>
+                  <div className="mt-4 space-y-2">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="transactionType"
+                        className="form-radio text-yellow-500"
+                      />
+                      <span>All Transactions</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="transactionType"
+                        className="form-radio text-yellow-500"
+                      />
+                      <span>Filtered Transactions</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-gray-700">Export as:</h3>
+                  <div className="mt-4 space-y-2">
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="fileType"
+                        className="form-radio text-yellow-500"
+                      />
+                      <span>CSV</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        name="fileType"
+                        className="form-radio text-yellow-500"
+                      />
+                      <span>Excel</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mt-6">
+                  <button
+                    onClick={closeExportModal}
+                    className="px-4 py-2 border border-yellow-500 text-yellow-500 rounded-md hover:bg-yellow-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={exportToExcel}
+                    className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
+                  >
+                    Export
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {isDatePickerOpen && (
           <div className="mt-4 bg-white border border-gray-200 rounded-lg shadow-md p-4">
@@ -291,105 +419,133 @@ export default function AllTransactionsPage() {
 
         {/* Slide-In Modal */}
         {selectedTransaction && (
-          <div className="fixed inset-0 flex justify-end z-50">
+          <div className="fixed inset-0 z-50 flex justify-end">
+            {/* Background Overlay */}
             <div
               className="bg-black bg-opacity-50 w-full h-full"
               onClick={closeModal}
             ></div>
-            <div className="bg-white w-[40rem] h-full shadow-lg p-8 overflow-y-auto relative">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b pb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800">
-                    #{selectedTransaction?.transactionId}
+
+            {/* Modal with Slide-in Transition */}
+            <div
+              className={`bg-white w-[28rem] h-full shadow-lg p-8 overflow-y-auto fixed right-0 transform transition-transform duration-300 ${
+                isModalVisible ? "translate-x-0" : "translate-x-full"
+              }`}
+            >
+              {/* Close Button */}
+              <button
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
+                onClick={closeModal}
+              >
+                &times;
+              </button>
+
+              {/* Modal Content */}
+              <div className="mt-6 space-y-8">
+                {/* Confirmation Section */}
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-8 w-8 text-green-800"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 10-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800 mt-4">
+                    KES {selectedTransaction.amount}
                   </h3>
-                  <p className="text-sm text-gray-500">
-                    {selectedTransaction?.date}
+                  <p className="text-gray-500 mt-1">
+                    Successfully sent to{" "}
+                    <span className="text-black font-semibold text-md">
+                      Promitto LTD
+                    </span>
+                  </p>
+                  <p className="text-md text-gray-400 mt-1">
+                    on{" "}
+                    <span className="text-black font-semibold">
+                      {selectedTransaction.date}
+                    </span>
                   </p>
                 </div>
-                <button
-                  className="text-gray-500 hover:text-gray-800 text-2xl absolute top-4 right-4"
-                  onClick={closeModal}
-                >
-                  &times;
-                </button>
-              </div>
 
-              {/* Content */}
-              <div className="mt-6">
-                {/* Yellow Line */}
-                <div className="border-l-4 border-yellow-500 pl-6 mb-6">
-                  {/* Customer Section */}
+                {/* Transaction Details */}
+                <div className="mt-6">
+                  <div className="grid grid-cols-2 gap-y-4 text-gray-700">
+                    <p className="text-gray-400">Transaction ID:</p>
+                    <p>#{selectedTransaction.transactionId}</p>
+                    <p className="text-gray-400">Channel:</p>
+                    <p>{selectedTransaction.channel}</p>
+                    <p className="text-gray-400">Purpose:</p>
+                    <p>{selectedTransaction.purpose}</p>
+                    <p className="text-gray-400">Origin:</p>
+                    <p>{selectedTransaction.origin}</p>
+                    <p className="text-gray-400">Destination:</p>
+                    <p>Kenya</p>
+                  </div>
+                </div>
 
-                  <div className="mb-6">
-                    <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
-                      <p className="text-lg font-bold text-gray-800 mb-4">
-                        Customer
-                      </p>
+                {/* Exchange Rate */}
+                <div>
+                  <div className="grid grid-cols-2 gap-y-4 text-gray-700 border border-dotted py-2 px-2 border-gray-300">
+                    <p className="text-gray-400">Exchange Rate:</p>
+                    <p>1GBP = 100 KES</p>
+                    <p className="text-gray-400">Transaction Fee:</p>
+                    <p>0.00</p>
+                  </div>
+                </div>
+
+                <div className="mt-8 border-t pt-4 ">
+                  <h4 className="text-lg font-bold text-gray-800 mb-4 ">
+                    Sender
+                  </h4>
+                  <div className="flex items-center space-x-4">
+                    {/* Avatar */}
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center">
                       <img
                         src={selectedTransaction.avatar}
-                        alt="Customer Avatar"
-                        className="w-12 h-12 rounded-full object-cover text-right"
+                        alt="Sender Avatar"
+                        className="w-full h-full rounded-full object-cover"
                       />
-
-                      <p className="text-gray-400">Name:</p>
-                      <p className="font-semibold">
+                    </div>
+                    {/* Sender Info */}
+                    <div>
+                      <p className="text-gray-700 font-semibold">
                         {selectedTransaction.customer}
                       </p>
-                      <p className="text-gray-400">Phone No.</p>
-                      <p>+254 722999888</p>
-                    </div>
-                  </div>
-
-                  {/* Transaction Section */}
-                  <div className="mb-6">
-                    <p className="text-lg font-bold text-gray-800 mb-4">
-                      Transaction
-                    </p>
-                    <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
-                      <p className="text-gray-400">Amount:</p>
-                      <p className="font-semibold">
-                        {selectedTransaction.amount}
-                      </p>
-                      <p className="text-gray-400">Channel:</p>
-                      <p>{selectedTransaction.channel}</p>
-                      <p className="text-gray-400">Purpose:</p>
-                      <p>Deposit</p>
-                      <p className="text-gray-400">Status:</p>
-                      <p className="font-semibold text-green-600">
-                        {selectedTransaction.status}
-                      </p>
-                      <p className="text-gray-400">Origin:</p>
-                      <p>{selectedTransaction.origin}</p>
-                      <p className="text-gray-400">Destination:</p>
-                      <p>Kenya</p>
-                    </div>
-                  </div>
-
-                  {/* Rates Section */}
-                  <div className="mb-6">
-                    <p className="text-lg font-bold text-gray-800 mb-4">
-                      Rates
-                    </p>
-                    <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
-                      <p className="text-gray-400">Exchange Rate:</p>
-                      <p>1GBP = 100 KES</p>
-                      <p className="text-gray-400">Transaction Fee:</p>
-                      <p>0.00</p>
-                    </div>
-                  </div>
-
-                  {/* Receiver Section */}
-                  <div>
-                    <p className="text-lg font-bold text-gray-800 mb-4">
-                      Receiver
-                    </p>
-                    <div className="grid grid-cols-2 gap-y-4 text-lg text-gray-700">
-                      <p className="text-gray-400">Name:</p>
-                      <p>Promitto</p>
+                      {/*phone number*/}
+                      <p className="text-gray-500 text-lg">+254 721533799</p>
                     </div>
                   </div>
                 </div>
+
+                {/* Download Receipt */}
+
+                {/* <div className="mt-8 text-center">
+                    <button className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      Download Receipt
+                    </button>
+                  </div> */}
               </div>
             </div>
           </div>
