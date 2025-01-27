@@ -1,8 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useParams,
+  useNavigate,
+} from "react-router-dom";
 import { Search, ArrowRight } from "lucide-react";
 import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
 import * as XLSX from "xlsx";
 import {
   Pagination,
@@ -119,6 +127,358 @@ export default function AllTransactionsPage() {
       avatar: "/avatar.png",
       purpose: "Loan Repayment",
     },
+    {
+      customer: "Reagan",
+      transactionId: "TUM1234659",
+      amount: "30,000",
+      origin: "UK - Kenya",
+      channel: "MPESA",
+      status: "Successful",
+      date: "07/10/2024, 10:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Alex",
+      transactionId: "TUM543210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/13/2024, 12:00:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Mike",
+      transactionId: "TUM543211",
+      amount: "500,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "11/15/2024, 08:30:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Reagan",
+      transactionId: "TUM123469",
+      amount: "30,000",
+      origin: "UK - Kenya",
+      channel: "MPESA",
+      status: "Successful",
+      date: "12/18/2024, 09:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Alex",
+      transactionId: "TUM543212",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "04/10/2024, 10:00:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Alice",
+      transactionId: "TUM542210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar4.jpg",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Alice",
+      transactionId: "TUM5433210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "MPESA",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar4.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Zach",
+      transactionId: "TUM5432107",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Reagan",
+      transactionId: "TUM1234659",
+      amount: "30,000",
+      origin: "UK - Kenya",
+      channel: "MPESA",
+      status: "Successful",
+      date: "07/10/2024, 10:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Alex",
+      transactionId: "TUM543210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/13/2024, 12:00:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Mike",
+      transactionId: "TUM543211",
+      amount: "500,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "11/15/2024, 08:30:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Reagan",
+      transactionId: "TUM123469",
+      amount: "30,000",
+      origin: "UK - Kenya",
+      channel: "MPESA",
+      status: "Successful",
+      date: "12/18/2024, 09:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Alex",
+      transactionId: "TUM543212",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "04/10/2024, 10:00:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Alice",
+      transactionId: "TUM542210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar4.jpg",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Alice",
+      transactionId: "TUM5433210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "MPESA",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar4.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Zach",
+      transactionId: "TUM5432107",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Reagan",
+      transactionId: "TUM1234659",
+      amount: "30,000",
+      origin: "UK - Kenya",
+      channel: "MPESA",
+      status: "Successful",
+      date: "07/10/2024, 10:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Alex",
+      transactionId: "TUM543210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/13/2024, 12:00:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Mike",
+      transactionId: "TUM543211",
+      amount: "500,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "11/15/2024, 08:30:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Reagan",
+      transactionId: "TUM123469",
+      amount: "30,000",
+      origin: "UK - Kenya",
+      channel: "MPESA",
+      status: "Successful",
+      date: "12/18/2024, 09:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Alex",
+      transactionId: "TUM543212",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "04/10/2024, 10:00:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Alice",
+      transactionId: "TUM542210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar4.jpg",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Alice",
+      transactionId: "TUM5433210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "MPESA",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar4.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Zach",
+      transactionId: "TUM5432107",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Reagan",
+      transactionId: "TUM1234659",
+      amount: "30,000",
+      origin: "UK - Kenya",
+      channel: "MPESA",
+      status: "Successful",
+      date: "07/10/2024, 10:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Alex",
+      transactionId: "TUM543210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/13/2024, 12:00:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Mike",
+      transactionId: "TUM543211",
+      amount: "500,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "11/15/2024, 08:30:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Reagan",
+      transactionId: "TUM123469",
+      amount: "30,000",
+      origin: "UK - Kenya",
+      channel: "MPESA",
+      status: "Successful",
+      date: "12/18/2024, 09:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Alex",
+      transactionId: "TUM543212",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "04/10/2024, 10:00:00 AM",
+      avatar: "/avatar2.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Alice",
+      transactionId: "TUM542210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar4.jpg",
+      purpose: "Deposit",
+    },
+    {
+      customer: "Alice",
+      transactionId: "TUM5433210",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "MPESA",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar4.jpg",
+      purpose: "Loan Repayment",
+    },
+    {
+      customer: "Zach",
+      transactionId: "TUM5432107",
+      amount: "50,000",
+      origin: "US - Kenya",
+      channel: "Bank Transfer",
+      status: "Pending",
+      date: "12/10/2024, 10:00:00 AM",
+      avatar: "/avatar.png",
+      purpose: "Loan Repayment",
+    },
   ];
 
   const [transactions, setTransactions] =
@@ -134,7 +494,22 @@ export default function AllTransactionsPage() {
   const [isExportModalVisible, setIsExportModalVisible] = useState(false);
   const [exportType, setExportType] = useState("all");
   const [fileType, setFileType] = useState("csv");
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const rowsPerPage = 10;
+
+  // Calculate total pages
+  const totalPages = Math.ceil(transactions.length / rowsPerPage);
+
+  // Get transactions for the current page
+  const currentTransactions = transactions.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  const handlePageNavigation = (page: number) => {
+    setCurrentPage(page);
+  };
   const exportData = () => {
     if (fileType === "csv") {
       console.log("Exporting data as CSV...");
@@ -155,6 +530,7 @@ export default function AllTransactionsPage() {
         transaction.channel.toLowerCase().includes(value)
     );
     setTransactions(filteredTransactions);
+    setCurrentPage(1); // Reset to the first page after filtering
   };
 
   const handleFilterByDate = () => {
@@ -165,6 +541,7 @@ export default function AllTransactionsPage() {
     });
     setTransactions(filteredTransactions);
     setIsDatePickerOpen(false);
+    setCurrentPage(1); // Reset to the first page after filtering
   };
 
   const exportToExcel = () => {
@@ -372,7 +749,7 @@ export default function AllTransactionsPage() {
             </thead>
             <tbody>
               {transactions.length > 0 ? (
-                transactions.map((transaction) => (
+                currentTransactions.map((transaction) => (
                   <tr
                     key={transaction.transactionId}
                     className="text-gray-700 cursor-pointer text-sm hover:bg-gray-50"
@@ -554,27 +931,36 @@ export default function AllTransactionsPage() {
         <Pagination className="text-xl mt-4">
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious
+                href="#"
+                onClick={() =>
+                  handlePageNavigation(Math.max(currentPage - 1, 1))
+                }
+              />
             </PaginationItem>
+
+            {Array.from({ length: totalPages }, (_, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink
+                  href="#"
+                  isActive={currentPage === index + 1}
+                  onClick={() => handlePageNavigation(index + 1)}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
             <PaginationItem>
-              <PaginationLink href="/all-transactions">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive>
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext
+                href="#"
+                onClick={() =>
+                  handlePageNavigation(Math.min(currentPage + 1, totalPages))
+                }
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
+        <Footer />
       </main>
     </div>
   );

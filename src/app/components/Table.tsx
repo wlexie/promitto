@@ -99,12 +99,12 @@ const Table: FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
+    <div className="bg-gray-100 p-4">
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <h2 className="px-6 py-4 font-semibold text-gray-800 border-b">
           Latest Transactions
         </h2>
-        <table className="w-full text-sm text-left text-gray-700 h-full">
+        <table className="w-full text-sm text-left text-gray-700">
           <thead className="bg-white ">
             <tr>
               <th className="px-6 py-3">Customer</th>

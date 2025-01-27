@@ -2,12 +2,12 @@ import { FC } from "react";
 
 const Sidebar: FC = () => {
   return (
-    <div className="w-70 max-h-full bg-white border-r border-gray-200 flex flex-col ">
+    <div className="w-70 max-h-full bg-white flex flex-col ">
       <div className="flex items-center justify-center py-6">
         <img
           src="/promitto_logo.png"
           alt="Logo"
-          className="w-30 h-22 px-2 py-2"
+          className="w-16 h-16 px-2 py-2"
         />
       </div>
       <nav className="flex flex-col gap-4 px-4">

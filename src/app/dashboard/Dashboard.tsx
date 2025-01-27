@@ -6,6 +6,7 @@ import Table from "@/app/components/Table";
 
 import AreaChart from "@/app/components/AreaGraph";
 import PieChart from "@/app/components/PieGraph";
+import Footer from "../components/Footer";
 
 const Card = ({
   icon,
@@ -98,6 +99,7 @@ export default function Home() {
           <PieChart />
         </div>
         <Table />
+        <Footer />
       </main>
     </div>
   );
