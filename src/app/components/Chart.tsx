@@ -27,7 +27,7 @@ function Chart() {
           height={300}
           data={chartData}
           layout="vertical"
-          margin={{ top: 20, right: 60, left: 0, bottom: 20 }}
+          margin={{ top: 20, right: 60, left: -5, bottom: 20 }}
         >
           {/* X-Axis */}
           <XAxis
