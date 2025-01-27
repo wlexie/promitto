@@ -129,7 +129,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Reagan",
-      transactionId: "TUM1234659",
+      transactionId: "TUM12346659",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -140,7 +140,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alex",
-      transactionId: "TUM543210",
+      transactionId: "TUM5439910",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -151,7 +151,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Mike",
-      transactionId: "TUM543211",
+      transactionId: "TUM54321123",
       amount: "500,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -162,7 +162,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Reagan",
-      transactionId: "TUM123469",
+      transactionId: "TUM123470",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -173,7 +173,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alex",
-      transactionId: "TUM543212",
+      transactionId: "TUM543223",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -184,7 +184,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alice",
-      transactionId: "TUM542210",
+      transactionId: "TUM542289",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -195,7 +195,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alice",
-      transactionId: "TUM5433210",
+      transactionId: "TUM5433235",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "MPESA",
@@ -206,7 +206,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Zach",
-      transactionId: "TUM5432107",
+      transactionId: "TUM5432196",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -217,7 +217,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Reagan",
-      transactionId: "TUM1234659",
+      transactionId: "TUM12346449",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -228,7 +228,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alex",
-      transactionId: "TUM543210",
+      transactionId: "TUM5432008",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -239,7 +239,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Mike",
-      transactionId: "TUM543211",
+      transactionId: "TUM54321006",
       amount: "500,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -250,7 +250,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Reagan",
-      transactionId: "TUM123469",
+      transactionId: "TUM12346859",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -261,7 +261,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alex",
-      transactionId: "TUM543212",
+      transactionId: "TUM54321253",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -272,7 +272,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alice",
-      transactionId: "TUM542210",
+      transactionId: "TUM5422120",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -283,7 +283,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alice",
-      transactionId: "TUM5433210",
+      transactionId: "TUM54332766",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "MPESA",
@@ -294,7 +294,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Zach",
-      transactionId: "TUM5432107",
+      transactionId: "TUM543210007",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -305,7 +305,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Reagan",
-      transactionId: "TUM1234659",
+      transactionId: "TUM123461222",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -316,7 +316,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alex",
-      transactionId: "TUM543210",
+      transactionId: "TUM54321088",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -327,7 +327,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Mike",
-      transactionId: "TUM543211",
+      transactionId: "TUM54321541",
       amount: "500,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -338,7 +338,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Reagan",
-      transactionId: "TUM123469",
+      transactionId: "TUM1234667",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -349,7 +349,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alex",
-      transactionId: "TUM543212",
+      transactionId: "TUM54321112",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -360,7 +360,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alice",
-      transactionId: "TUM542210",
+      transactionId: "TUM54221765",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -371,7 +371,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alice",
-      transactionId: "TUM5433210",
+      transactionId: "TUM5433210123",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "MPESA",
@@ -382,7 +382,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Zach",
-      transactionId: "TUM5432107",
+      transactionId: "TUM54321075",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -393,7 +393,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Reagan",
-      transactionId: "TUM1234659",
+      transactionId: "TUM123465923",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -404,7 +404,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alex",
-      transactionId: "TUM543210",
+      transactionId: "TUM543210122",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -415,7 +415,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Mike",
-      transactionId: "TUM543211",
+      transactionId: "TUM543211333",
       amount: "500,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -426,7 +426,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Reagan",
-      transactionId: "TUM123469",
+      transactionId: "TUM123469555",
       amount: "30,000",
       origin: "UK - Kenya",
       channel: "MPESA",
@@ -437,7 +437,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alex",
-      transactionId: "TUM543212",
+      transactionId: "TUM543212344",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -448,7 +448,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alice",
-      transactionId: "TUM542210",
+      transactionId: "TUM542210876",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -459,7 +459,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Alice",
-      transactionId: "TUM5433210",
+      transactionId: "TUM5433210338",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "MPESA",
@@ -470,7 +470,7 @@ export default function AllTransactionsPage() {
     },
     {
       customer: "Zach",
-      transactionId: "TUM5432107",
+      transactionId: "TUM54321078765",
       amount: "50,000",
       origin: "US - Kenya",
       channel: "Bank Transfer",
@@ -519,7 +519,7 @@ export default function AllTransactionsPage() {
     closeExportModal();
   };
 
-  const handleSearch = (e: any) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
 
