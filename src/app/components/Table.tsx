@@ -190,7 +190,7 @@ const Table: FC = () => {
 
           {/* Modal with Slide-in Transition */}
           <div
-            className={`bg-white w-[28rem] h-full shadow-lg p-8 overflow-y-auto fixed right-0 transform transition-transform duration-300 ${
+            className={`bg-white w-[28rem] h-svh shadow-lg p-8 overflow-y-auto fixed right-0 transform transition-transform duration-300 ${
               isModalVisible ? "translate-x-0" : "translate-x-full"
             }`}
           >
