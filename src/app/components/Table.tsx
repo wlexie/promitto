@@ -1,4 +1,6 @@
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, useRef } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 interface Transaction {
   avatar: string;
@@ -89,6 +91,34 @@ const Table: FC = () => {
 
   const handleRowClick = (transaction: any) => {
     setSelectedTransaction(transaction);
+  };
+
+  const handleDownloadReceipt = async () => {
+    const receiptElement = document.getElementById("receipt");
+    if (receiptElement) {
+      receiptElement.style.opacity = "1";
+      receiptElement.style.position = "static";
+      receiptElement.style.pointerEvents = "auto";
+      console.log("Receipt element found:", receiptElement);
+      try {
+        const canvas = await html2canvas(receiptElement, { scale: 1 });
+        const pdf = new jsPDF("p", "mm", "a4");
+        const pdfWidth = 210; // A4 width in mm
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        const imgData = canvas.toDataURL("image/png");
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Receipt_${selectedTransaction?.id}.pdf`);
+        await document.fonts.ready;
+        console.log("PDF downloaded successfully");
+      } catch (error) {
+        console.error("Receipt element not found.");
+      }
+      receiptElement.style.opacity = "0";
+      receiptElement.style.position = "absolute";
+      receiptElement.style.pointerEvents = "none";
+    } else {
+      console.error("Receipt element not found in the DOM");
+    }
   };
 
   const closeModal = () => {
@@ -259,25 +289,73 @@ const Table: FC = () => {
 
               {/* Download Receipt */}
 
-              {/* <div className="mt-8 text-center">
-                  <button className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    Download Receipt
-                  </button>
-                </div> */}
+              <div className="mt-8 text-center">
+                <button
+                  onClick={handleDownloadReceipt}
+                  className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Download Receipt
+                </button>
+              </div>
+              {/* Hidden Receipt for PDF Generation */}
+              <div
+                id="receipt"
+                style={{
+                  opacity: 0,
+                  position: "absolute",
+                  pointerEvents: "none",
+                }}
+                className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-md font-sans text-gray-700"
+              >
+                {/* Receipt Design */}
+                <div className="text-center">
+                  <img src="/logoimage.png" className="w-14 h-14" />
+                  <h2 className="text-2xl font-bold text-black my-4">
+                    KES {selectedTransaction.amount}
+                  </h2>
+                  <p className="text-gray-500">
+                    Successfully sent to{" "}
+                    <span className="font-semibold text-black">
+                      {selectedTransaction.destination}
+                    </span>
+                  </p>
+                  <p className="text-gray-400">
+                    on{" "}
+                    <span className="font-semibold text-black">
+                      {selectedTransaction.date}
+                    </span>
+                  </p>
+                </div>
+
+                <div className="mt-6">
+                  <div className="grid grid-cols-2 gap-y-4 text-gray-700">
+                    <p className="text-gray-400">Transaction ID:</p>
+                    <p>#{selectedTransaction.id}</p>
+                    <p className="text-gray-400">Channel:</p>
+                    <p>{selectedTransaction.channel}</p>
+                    <p className="text-gray-400">Purpose:</p>
+                    <p>{selectedTransaction.purpose}</p>
+                    <p className="text-gray-400">Origin:</p>
+                    <p>{selectedTransaction.origin}</p>
+                    <p className="text-gray-400">Destination:</p>
+                    <p>{selectedTransaction.destination}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

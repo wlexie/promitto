@@ -1,13 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useParams,
-  useNavigate,
-} from "react-router-dom";
 import { Search, ArrowRight } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
@@ -25,7 +18,7 @@ import { DateRangePicker } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
-interface Transaction {
+export interface Transaction {
   customer: string;
   transactionId: string;
   amount: string;
@@ -485,11 +478,13 @@ export default function AllTransactionsPage() {
     useState<Transaction[]>(initialTransactions);
 
   const [searchTerm, setSearchTerm] = useState("");
+
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
     endDate: new Date(),
     key: "selection",
   });
+
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [isExportModalVisible, setIsExportModalVisible] = useState(false);
   const [exportType, setExportType] = useState("all");
@@ -595,15 +590,15 @@ export default function AllTransactionsPage() {
       <main className="flex-1 p-6 bg-gray-100">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-semibold">All transactions</h1>
-          <div className="flex items-center gap-4">
-            <div className="relative">
+          <div className="flex items-center gap-6">
+            <div className="relative w-[300px] sm:w-[400px] md:w-[500px]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 flex-wrap" />
               <input
                 type="text"
-                placeholder="Search by name, ID, channel..."
+                placeholder="Search by name, ID, or channel..."
                 value={searchTerm}
                 onChange={handleSearch}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-gray-500 focus:border-gray-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-gray-500 focus:border-gray-500"
               />
             </div>
 
@@ -716,6 +711,7 @@ export default function AllTransactionsPage() {
               ranges={[dateRange]}
               onChange={(item: any) => setDateRange(item.selection)}
             />
+
             <div className="mt-4 flex justify-end gap-4">
               <button
                 onClick={() => setIsDatePickerOpen(false)}
@@ -904,25 +900,25 @@ export default function AllTransactionsPage() {
 
                 {/* Download Receipt */}
 
-                {/* <div className="mt-8 text-center">
-                    <button className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                      Download Receipt
-                    </button>
-                  </div> */}
+                <div className="mt-8 text-center">
+                  <button className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Download Receipt
+                  </button>
+                </div>
               </div>
             </div>
           </div>
