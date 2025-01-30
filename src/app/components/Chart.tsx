@@ -1,6 +1,5 @@
 "use client";
 
-//import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis, Tooltip, Label } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +26,7 @@ function Chart() {
           height={300}
           data={chartData}
           layout="vertical"
-          margin={{ top: 20, right: 60, left: -5, bottom: 20 }}
+          margin={{ top: 20, right: 80, left: -5, bottom: 20 }}
         >
           {/* X-Axis */}
           <XAxis

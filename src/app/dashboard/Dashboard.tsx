@@ -93,7 +93,7 @@ export default function Home() {
             value="200"
           />
         </div>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-4">
           <AreaChart />
           <Chart />
           <PieChart />
