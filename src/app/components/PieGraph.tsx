@@ -41,21 +41,30 @@ function PieGraph() {
           </PieChart>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col gap-1 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          <span
-            className="inline-block h-4 w-4 rounded-sm"
-            style={{ backgroundColor: "#FFBF00" }}
-          ></span>
-          <span className="flex-1">M-PESA KES 200,000</span>
-        </div>
-        <div className="flex items-center gap-2 font-medium leading-none">
-          <span
-            className="inline-block h-4 w-4 rounded-sm"
-            style={{ backgroundColor: "#031254" }}
-          ></span>
-          <span className="flex-1">Bank KES 50,000</span>
-        </div>
+
+      <CardFooter className="flex flex-col items-center text-sm">
+        <table className="text-left">
+          <tbody>
+            <tr>
+              <td className="pr-2">
+                <span
+                  className="inline-block h-4 w-4 rounded-sm"
+                  style={{ backgroundColor: "#FFBF00" }}
+                ></span>
+              </td>
+              <td>M-PESA KES 200,000</td>
+            </tr>
+            <tr>
+              <td className="pr-2">
+                <span
+                  className="inline-block h-4 w-4 rounded-sm"
+                  style={{ backgroundColor: "#031254" }}
+                ></span>
+              </td>
+              <td>Bank KES 50,000</td>
+            </tr>
+          </tbody>
+        </table>
       </CardFooter>
     </Card>
   );

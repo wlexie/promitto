@@ -17,6 +17,8 @@ import {
 import { DateRangePicker } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export interface Transaction {
   customer: string;
@@ -584,6 +586,78 @@ export default function AllTransactionsPage() {
     setIsExportModalVisible(false);
   };
 
+  const handleDownloadReceipt = async () => {
+    const receiptElement = document.getElementById("receipt");
+    if (!receiptElement) {
+      console.error("Receipt element not found in the DOM");
+      return;
+    }
+
+    try {
+      // Clone receipt to avoid UI distortion
+      const clonedReceipt = receiptElement.cloneNode(true) as HTMLElement;
+      clonedReceipt.style.opacity = "1";
+      clonedReceipt.style.position = "static";
+      clonedReceipt.style.pointerEvents = "auto";
+      clonedReceipt.style.transform = "scale(1)";
+
+      // Style adjustments for proper A4 layout
+      clonedReceipt.style.width = "700px"; // Wider layout for better spacing
+      clonedReceipt.style.padding = "40px"; // Adds space on the sides
+      clonedReceipt.style.margin = "auto"; // Centers content
+      clonedReceipt.style.background = "white"; // Ensure background visibility
+
+      // Append cloned receipt to a hidden container
+      const hiddenContainer = document.createElement("div");
+      hiddenContainer.style.position = "fixed";
+      hiddenContainer.style.top = "-9999px"; // Moves it out of view
+      hiddenContainer.style.width = "100%";
+      hiddenContainer.style.display = "flex";
+      hiddenContainer.style.justifyContent = "center"; // Centers horizontally
+      hiddenContainer.appendChild(clonedReceipt);
+      document.body.appendChild(hiddenContainer);
+
+      // Wait for fonts & images to load
+      await document.fonts.ready;
+
+      // Capture the receipt
+      const canvas = await html2canvas(clonedReceipt, {
+        scale: 2,
+        useCORS: true,
+      });
+
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = 210; // A4 width in mm
+      const pdfHeight = 297; // A4 height in mm
+
+      // Calculate proper scaling
+      const imgWidth = pdfWidth - 40; // Leaving margin on sides
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Centered placement on A4
+      const xOffset = (pdfWidth - imgWidth) / 2;
+      const yOffset = (pdfHeight - imgHeight) / 2;
+
+      // Add image to PDF
+      pdf.addImage(
+        canvas.toDataURL("image/png"),
+        "PNG",
+        xOffset,
+        yOffset,
+        imgWidth,
+        imgHeight
+      );
+      pdf.save(`Receipt_${selectedTransaction?.transactionId}.pdf`);
+
+      console.log("PDF downloaded successfully");
+
+      // Remove cloned receipt from the DOM
+      document.body.removeChild(hiddenContainer);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -622,13 +696,13 @@ export default function AllTransactionsPage() {
           <div className="fixed inset-0 z-50 flex justify-end">
             {/* Background Overlay */}
             <div
-              className="bg-black bg-opacity-50 w-full h-full"
+              className="bg-black bg-opacity-30 w-full h-full"
               onClick={closeExportModal}
             ></div>
 
-            {/* Modal with Slide-in Transition */}
+            {/* Modal */}
             <div
-              className="bg-white w-[36rem] h-full shadow-lg p-8 overflow-y-auto relative transform transition-transform duration-300 translate-x-full"
+              className="bg-white w-96 h-full shadow-lg p-6 overflow-y-auto relative transform transition-transform duration-300 translate-x-full"
               style={{ transform: "translateX(0)" }}
             >
               {/* Close Button */}
@@ -639,67 +713,76 @@ export default function AllTransactionsPage() {
                 &times;
               </button>
 
-              <div className="mt-6 space-y-6">
-                <h2 className="text-xl font-bold">Export Transactions</h2>
+              {/* Title */}
+              <h2 className="text-lg font-bold text-gray-900">
+                Export Transactions
+              </h2>
 
-                <div>
-                  <h3 className="font-semibold text-gray-700">Options:</h3>
-                  <div className="mt-4 space-y-2">
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="transactionType"
-                        className="form-radio text-yellow-500"
-                      />
-                      <span>All Transactions</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="transactionType"
-                        className="form-radio text-yellow-500"
-                      />
-                      <span>Filtered Transactions</span>
-                    </label>
-                  </div>
-                </div>
+              {/* Transaction Selection */}
+              <div className="mt-4 space-y-4">
+                <label className="flex justify-between items-center py-3 border-b border-gray-200 cursor-pointer">
+                  <span className="text-gray-700 text-sm">
+                    All Transactions
+                  </span>
+                  <input
+                    type="checkbox"
+                    name="transactionType"
+                    value="all"
+                    className="form-checkbox text-green-500"
+                  />
+                </label>
+                <label className="flex justify-between items-center py-3 border-b border-gray-200 cursor-pointer">
+                  <span className="text-gray-700 text-sm">
+                    Filtered Transactions
+                  </span>
+                  <input
+                    type="checkbox"
+                    name="transactionType"
+                    value="filtered"
+                    className="form-checkbox text-green-500"
+                  />
+                </label>
+              </div>
 
-                <div>
-                  <h3 className="font-semibold text-gray-700">Export as:</h3>
-                  <div className="mt-4 space-y-2">
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="fileType"
-                        className="form-radio text-yellow-500"
-                      />
-                      <span>CSV</span>
-                    </label>
-                    <label className="flex items-center space-x-2">
-                      <input
-                        type="radio"
-                        name="fileType"
-                        className="form-radio text-yellow-500"
-                      />
-                      <span>Excel</span>
-                    </label>
-                  </div>
-                </div>
+              {/* Export Type */}
+              <h3 className="mt-6 text-sm font-bold text-gray-900">
+                Export as:
+              </h3>
+              <div className="mt-4 space-y-4">
+                <label className="flex justify-between items-center py-3 border-b border-gray-200 cursor-pointer">
+                  <span className="text-gray-700 text-sm">CSV</span>
+                  <input
+                    type="checkbox"
+                    name="fileType"
+                    value="csv"
+                    className="form-checkbox text-green-500"
+                  />
+                </label>
+                <label className="flex justify-between items-center py-3 border-b border-gray-200 cursor-pointer">
+                  <span className="text-gray-700 text-sm">Excel</span>
+                  <input
+                    type="checkbox"
+                    name="fileType"
+                    value="excel"
+                    className="form-checkbox text-green-500"
+                  />
+                </label>
+              </div>
 
-                <div className="flex items-center justify-between mt-6">
-                  <button
-                    onClick={closeExportModal}
-                    className="px-4 py-2 border border-yellow-500 text-yellow-500 rounded-md hover:bg-yellow-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={exportToExcel}
-                    className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-                  >
-                    Export
-                  </button>
-                </div>
+              {/* Buttons */}
+              <div className="flex items-center justify-between mt-6">
+                <button
+                  onClick={closeExportModal}
+                  className="px-6 py-2 border border-yellow-500 text-yellow-500 text-sm font-semibold rounded-md hover:bg-yellow-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={exportToExcel}
+                  className="px-6 py-2 bg-yellow-500 text-white text-sm font-semibold rounded-md hover:bg-yellow-600"
+                >
+                  Export
+                </button>
               </div>
             </div>
           </div>
@@ -817,17 +900,17 @@ export default function AllTransactionsPage() {
               <div className="mt-6 space-y-8">
                 {/* Confirmation Section */}
                 <div className="text-center mb-6">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-8 w-8 text-green-800"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                      width="60"
+                      height="60"
+                      viewBox="0 0 24 24"
                     >
                       <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 10-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"
-                        clipRule="evenodd"
+                        fill="#048020"
+                        fill-rule="evenodd"
+                        d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10m-1.177-7.86l-2.765-2.767L7 12.431l3.119 3.121a1 1 0 0 0 1.414 0l5.952-5.95l-1.062-1.062z"
                       />
                     </svg>
                   </div>
@@ -874,11 +957,11 @@ export default function AllTransactionsPage() {
                   </div>
                 </div>
 
-                <div className="mt-8 border-t pt-4 ">
-                  <h4 className="text-lg font-bold text-gray-800 mb-4 ">
+                <div className="mt-8 border-t pt-4 text-center">
+                  <h4 className="text-lg font-bold text-gray-800 mb-4">
                     Sender
                   </h4>
-                  <div className="flex items-center space-x-4">
+                  <div className="flex flex-col items-center space-y-4">
                     {/* Avatar */}
                     <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center">
                       <img
@@ -892,16 +975,18 @@ export default function AllTransactionsPage() {
                       <p className="text-gray-700 font-semibold">
                         {selectedTransaction.customer}
                       </p>
-                      {/*phone number*/}
+                      {/* Phone number */}
                       <p className="text-gray-500 text-lg">+254 721533799</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Download Receipt */}
-
                 <div className="mt-8 text-center">
-                  <button className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600">
+                  <button
+                    className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600 mx-auto"
+                    onClick={handleDownloadReceipt}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6"
@@ -918,6 +1003,120 @@ export default function AllTransactionsPage() {
                     </svg>
                     Download Receipt
                   </button>
+                </div>
+
+                {/* Hidden Receipt for PDF Generation */}
+                <div
+                  id="receipt"
+                  style={{
+                    opacity: 0,
+                    position: "absolute",
+                    pointerEvents: "none",
+                  }}
+                  className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-lg text-gray-700"
+                >
+                  {/* Logo */}
+                  <div className="text-center">
+                    <img
+                      src="/logoimage.png"
+                      className="w-8 h-8 mx-auto mt-1"
+                    />
+                  </div>
+
+                  {/* Amount */}
+                  <h2 className="text-2xl font-bold text-black text-center mt-2">
+                    KES {selectedTransaction.amount}
+                  </h2>
+
+                  {/* Success Message */}
+                  <p className="text-gray-500 text-center ">
+                    Successfully sent to{" "}
+                    <span className="font-semibold text-black">
+                      Promitto LTD
+                    </span>
+                  </p>
+                  <p className="text-gray-400 text-center">
+                    on{" "}
+                    <span className="font-semibold text-black">
+                      {selectedTransaction.date}
+                    </span>
+                  </p>
+
+                  {/* Receiver Details */}
+                  <div className="bg-gray-100 p-4 rounded-lg mt-3">
+                    <h3 className="font-semibold text-black">Receiver</h3>
+                    <div className="mt-4 text-sm">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-500">Transaction ID</span>
+                        <span className="text-black">
+                          #{selectedTransaction.transactionId}
+                        </span>
+                      </div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-500">Channel</span>
+                        <span>{selectedTransaction.channel}</span>
+                      </div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-500">
+                          Purpose of payment
+                        </span>
+                        <span>Deposit</span>
+                      </div>
+                      <div className="flex justify-between  mb-1">
+                        <span className="text-gray-500">Payment Method</span>
+                        <span>Bank Transfer</span>
+                      </div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-500">Origin</span>
+                        <span>UK - KE</span>
+                      </div>
+                      <div className="border-t border-gray-300 my-2"></div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-500">Transaction Fee</span>
+                        <span>0.00</span>
+                      </div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-500">Exchange Rate</span>
+                        <span>1 GBP = KES 150 </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sender Details */}
+                  <div className="bg-gray-100 p-4 rounded-lg mt-3">
+                    <h3 className="font-semibold text-black">Sender</h3>
+                    <div className="mt-1 text-sm">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-500">Sender Name</span>
+                        <span className="text-black">
+                          {selectedTransaction.customer}
+                        </span>
+                      </div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-500">Phone Number</span>
+                        <span>+254 712 455 667</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="text-center text-sm mt-2">
+                    <p className="font-semibold">Thank you for using Tuma!</p>
+                    <p className="text-gray-500 italic">
+                      For inquiries or assistance, contact us:
+                    </p>
+                    <p className="text-gray-500">support@tuma.com</p>
+                    <p className="text-gray-500">+447-778-024-995</p>
+                    <a
+                      href="https://tuma.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div>
+                        <p className="text-blue-500">tuma.com</p>
+                      </div>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

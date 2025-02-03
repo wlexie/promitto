@@ -34,42 +34,6 @@ export default function Home() {
       <Sidebar />
       <main className="flex-1 p-8 space-y-8 ">
         <Header />
-        {/* <div className="grid grid-cols-3 gap-4 text-lg font-bold">
-          <Card
-            icon={
-              <img
-                src="/icon1.svg"
-                alt="Custom Icon"
-                className="rounded-md bg-white "
-              />
-            }
-            title="Total amount transacted"
-            value="KES 450,000.98"
-          />
-
-          <Card
-            icon={
-              <img
-                src="/icon2.svg"
-                alt="Custom Icon"
-                className="h-18 rounded-md "
-              />
-            }
-            title="Count of Transactions"
-            value="450"
-          />
-          <Card
-            title="Total Unique Customers"
-            value="200"
-            icon={
-              <img
-                src="/icon3.svg"
-                alt="custom icon"
-                className="h-18 rounded-md "
-              />
-            }
-          />
-        </div> */}
         <div className=" gap-4 grid grid-cols-3 text-lg">
           <Card
             icon={
