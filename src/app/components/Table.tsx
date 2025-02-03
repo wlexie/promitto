@@ -206,17 +206,17 @@ const Table: FC = () => {
             <div className="mt-6 space-y-8">
               {/* Confirmation Section */}
               <div className="text-center mb-6">
-                <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+                <div className=" mx-auto rounded-full flex items-center justify-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-green-800"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                    width="60"
+                    height="60"
+                    viewBox="0 0 24 24"
                   >
                     <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 10-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"
-                      clipRule="evenodd"
+                      fill="#048020"
+                      fill-rule="evenodd"
+                      d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10m-1.177-7.86l-2.765-2.767L7 12.431l3.119 3.121a1 1 0 0 0 1.414 0l5.952-5.95l-1.062-1.062z"
                     />
                   </svg>
                 </div>

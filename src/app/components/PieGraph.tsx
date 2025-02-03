@@ -17,7 +17,7 @@ const chartData = [
 
 function PieGraph() {
   return (
-    <Card className="flex flex-col bg-white">
+    <Card className="flex flex-col bg-white ">
       <CardHeader className="items-center pb-0">
         <CardTitle className="text-xl">Revenue Breakdown</CardTitle>
       </CardHeader>
@@ -41,20 +41,20 @@ function PieGraph() {
           </PieChart>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col gap-2 text-sm">
+      <CardFooter className="flex flex-col gap-1 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
           <span
             className="inline-block h-4 w-4 rounded-sm"
             style={{ backgroundColor: "#FFBF00" }}
           ></span>
-          M-PESA KES 200,000
+          <span className="flex-1">M-PESA KES 200,000</span>
         </div>
         <div className="flex items-center gap-2 font-medium leading-none">
           <span
             className="inline-block h-4 w-4 rounded-sm"
             style={{ backgroundColor: "#031254" }}
           ></span>
-          Bank KES 50,000
+          <span className="flex-1">Bank KES 50,000</span>
         </div>
       </CardFooter>
     </Card>

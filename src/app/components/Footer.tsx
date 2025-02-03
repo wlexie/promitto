@@ -3,9 +3,16 @@ const Footer = () => {
     <footer className="bg-gray-100 py-4 border-gray-300 flex">
       <div className="container mx-auto flex justify-between items-center text-sm text-gray-500">
         {/* Left Section - Logo */}
-        <div className="flex items-center">
-          <img src="/tumalogo.png" alt="Tuma Logo" className="h-6" />
-        </div>
+        <a
+          href="https://tuma.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center"
+        >
+          <div>
+            <img src="/tumalogo.png" alt="Tuma Logo" className="h-6" />
+          </div>
+        </a>
 
         {/* Center Section - Links */}
         <div className="flex space-x-6">
