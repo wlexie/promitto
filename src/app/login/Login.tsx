@@ -39,7 +39,7 @@ function Login() {
   };
 
   return (
-    <div className=" flex  flex-wrap p-0">
+    <div className=" flex  flex-wrap ">
       <div className="pointer-events-none relative hidden h-screen select-none  md:block md:w-1/2">
         <img
           src="/bg.png"
@@ -47,7 +47,7 @@ function Login() {
           className="-z-1 absolute top-0 h-full w-full object-cover opacity-90"
         />
       </div>
-      <div className="flex w-full flex-col md:w-1/2">
+      <div className="flex w-full flex-col md:w-1/2 p-16">
         <div className="lg:w-full mx-auto my-auto flex flex-col justify-center pt-8 md:justify-start md:px-6 md:pt-0">
           <div className="mx-4">
             <img
@@ -85,7 +85,7 @@ function Login() {
                   value={formData.username}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-md border bg-white px-2 py-3 dark:text-black outline-none ring-gray-400 focus:ring-1"
+                  className=" w-full rounded-md border bg-white px-2 py-3 dark:text-black outline-none ring-gray-400 focus:ring-1"
                   placeholder=""
                 />
               </div>
@@ -101,40 +101,41 @@ function Login() {
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    placeholder="********"
+                    placeholder=""
                     className="block w-full py-3 text-gray-700 placeholder-gray-400/70 bg-white border border-gray-200 rounded-lg pl-5 pr-11 dark:bg-white dark:text-gray-300 dark:border-gray-600 focus:border-gray-400 focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute right-2 focus:outline-none"
+                    className="absolute -right-28 focus:outline-none w-1/2"
                   >
                     {isPasswordVisible ? (
-                      <IoEyeOutline className="mx-2 text-gray-600" />
+                      <IoEyeOutline className="mx-0 text-gray-600 " />
                     ) : (
-                      <IoEyeOffOutline className="mx-2 text-gray-600" />
+                      <IoEyeOffOutline className="mx-0 text-gray-600" />
                     )}
                   </button>
                 </div>
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-gray-900 dark:bg-[#050505] px-4 py-3 mt-4 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2 flex items-center justify-center"
+            <Link
+              href="/dashboard"
+              className=" rounded-lg bg-gray-900 dark:bg-[#050505] px-4 py-3 mt-4 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2 flex items-center justify-center"
             >
               Login
-            </button>
-          </form>
-
-          <div className="py-6 text-center text-yellow-400">
-            <Link
-              href="/forgot-password"
-              className="whitespace-nowrap  underline"
-            >
-              Forgot password?
             </Link>
-          </div>
+          </form>
+          <center>
+            <div className="py-6 -mr-18 text-yellow-400">
+              <Link
+                href="/forgot-password"
+                className="whitespace-nowrap  underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
+          </center>
         </div>
       </div>
     </div>

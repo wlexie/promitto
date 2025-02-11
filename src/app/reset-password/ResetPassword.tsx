@@ -47,7 +47,7 @@ function ResetPassword() {
           className="-z-1 absolute top-0 h-full w-full object-cover opacity-90"
         />
       </div>
-      <div className="flex w-full flex-col md:w-1/2">
+      <div className="flex w-full flex-col md:w-1/2 p-16">
         <div className="lg:w-full mx-auto my-auto flex flex-col justify-center pt-8 md:justify-start md:px-6 md:pt-0">
           <div className="mx-4">
             <img

@@ -294,6 +294,8 @@ const Table: FC = () => {
                   <p>{selectedTransaction.origin}</p>
                   <p className="text-gray-400">Destination:</p>
                   <p>{selectedTransaction.destination}</p>
+                  <p className="text-gray-400">Promitto Code:</p>
+                  <p>PR098771</p>
                 </div>
               </div>
 
@@ -306,56 +308,55 @@ const Table: FC = () => {
                   <p>0.00</p>
                 </div>
               </div>
-
-              <div className="mt-8 border-t pt-4 ">
-                <h4 className="text-lg font-bold text-gray-800 mb-4 ">
-                  Sender
-                </h4>
-                <div className="flex items-center space-x-4">
+              <div className="align-middle text-center justify-center">
+                <div className="mt-8 border-t pt-4 ">
+                  <h4 className="text-md font-bold text-gray-500 mb-4 ">
+                    Sender
+                  </h4>
                   {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-gray-100 ml-40 align-middle justify-center mb-2">
                     <img
                       src={selectedTransaction.avatar}
                       alt="Sender Avatar"
-                      className="w-full h-full rounded-full object-cover"
+                      className="w-full h-full rounded-full object-cover mr-6"
                     />
                   </div>
-                  {/* Sender Info */}
-                  <div>
-                    <p className="text-gray-700 font-semibold">
-                      {selectedTransaction.customer}
-                    </p>
-                    {/*phone number*/}
-                    <p className="text-gray-500 text-lg">+254 721533799</p>
+                  <div className="flex items-center align-middle justify-center">
+                    {/* Sender Info */}
+                    <div>
+                      <p className="text-gray-700 font-semibold">
+                        {selectedTransaction.customer}
+                      </p>
+                      {/*phone number*/}
+                      <p className="text-gray-500 text-lg">+254 721533799</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+                {/* Download Receipt */}
 
-              {/* Download Receipt */}
-
-              <div className="mt-8 text-center">
-                <button
-                  onClick={handleDownloadReceipt}
-                  className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                <div className="mt-8 flex items-center justify-center">
+                  <button
+                    onClick={handleDownloadReceipt}
+                    className="flex items-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Download Receipt
-                </button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    <span>Download Receipt</span>
+                  </button>
+                </div>
               </div>
-
               {/* Hidden Receipt for PDF Generation */}
               <div
                 id="receipt"

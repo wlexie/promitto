@@ -1,9 +1,7 @@
 import Sidebar from "@/app/components/Sidebar";
 import Header from "@/app/components/Header";
-// import Card from "@/app/components/Card";
 import Chart from "@/app/components/Chart";
 import Table from "@/app/components/Table";
-
 import AreaChart from "@/app/components/AreaGraph";
 import PieChart from "@/app/components/PieGraph";
 import Footer from "../components/Footer";
@@ -30,11 +28,11 @@ const Card = ({
 
 export default function Home() {
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 p-8 space-y-8 ">
+      <main className="flex-1 p-8 space-y-8 ml-80">
         <Header />
-        <div className=" gap-4 grid grid-cols-3 text-lg">
+        <div className="gap-4 grid grid-cols-3 text-lg">
           <Card
             icon={
               <img src="/icon1.svg" alt="Custom Icon" className="w-12 h-12" />

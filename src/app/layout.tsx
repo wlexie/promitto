@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex text-black">
-        <main className="flex-1 p-6 bg-gray-100">{children}</main>
+        <main className="flex-1 bg-gray-100">{children}</main>
       </body>
     </html>
   );

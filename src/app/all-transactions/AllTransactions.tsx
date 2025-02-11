@@ -484,7 +484,7 @@ export default function AllTransactionsPage() {
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
     endDate: new Date(),
-    key: "selection",
+    key: "string",
   });
 
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -508,10 +508,16 @@ export default function AllTransactionsPage() {
     setCurrentPage(page);
   };
   const exportData = () => {
+    let dataToExport;
+    if (exportType === "all") {
+      dataToExport = initialTransactions;
+    } else {
+      dataToExport = transactions; // This will be the filtered transactions
+    }
     if (fileType === "csv") {
       console.log("Exporting data as CSV...");
     } else {
-      console.log("Exporting data as Excel...");
+      exportToExcel(dataToExport, dateRange);
     }
     closeExportModal();
   };
@@ -541,21 +547,34 @@ export default function AllTransactionsPage() {
     setCurrentPage(1); // Reset to the first page after filtering
   };
 
-  const exportToExcel = () => {
-    const dataToExport = transactions.map((transaction) => ({
-      Customer: transaction.customer,
-      "Transaction ID": transaction.transactionId,
-      Amount: transaction.amount,
-      Origin: transaction.origin,
-      Channel: transaction.channel,
-      Status: transaction.status,
-      Date: new Date(transaction.date).toLocaleString(),
-    }));
+  const exportToExcel = (dataToExport: any, dateRange: any) => {
+    let fileName = "Transactions.xlsx"; // Default name for "All Transactions"
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    if (exportType === "filtered" && dateRange) {
+      const startDateStr = dateRange.startDate
+        .toLocaleDateString()
+        .replace(/\//g, "-");
+      const endDateStr = dateRange.endDate
+        .toLocaleDateString()
+        .replace(/\//g, "-");
+      fileName = `Transactions_${startDateStr}_to_${endDateStr}.xlsx`;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(
+      dataToExport.map((transaction: any) => ({
+        Customer: transaction.customer,
+        "Transaction ID": transaction.transactionId,
+        Amount: transaction.amount,
+        Origin: transaction.origin,
+        Channel: transaction.channel,
+        Status: transaction.status,
+        Date: new Date(transaction.date).toLocaleString(),
+      }))
+    );
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
-    XLSX.writeFile(workbook, "Transactions.xlsx");
+    XLSX.writeFile(workbook, fileName);
   };
 
   const [selectedTransaction, setSelectedTransaction] =
@@ -661,7 +680,7 @@ export default function AllTransactionsPage() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <main className="flex-1 p-6 bg-gray-100">
+      <main className="flex-1 bg-gray-100 p-8 space-y-8 ml-80">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-semibold">All transactions</h1>
           <div className="flex items-center gap-6">
@@ -725,7 +744,7 @@ export default function AllTransactionsPage() {
                     All Transactions
                   </span>
                   <input
-                    type="checkbox"
+                    type="radio"
                     name="transactionType"
                     value="all"
                     className="form-checkbox text-green-500"
@@ -736,7 +755,7 @@ export default function AllTransactionsPage() {
                     Filtered Transactions
                   </span>
                   <input
-                    type="checkbox"
+                    type="radio"
                     name="transactionType"
                     value="filtered"
                     className="form-checkbox text-green-500"
@@ -752,7 +771,7 @@ export default function AllTransactionsPage() {
                 <label className="flex justify-between items-center py-3 border-b border-gray-200 cursor-pointer">
                   <span className="text-gray-700 text-sm">CSV</span>
                   <input
-                    type="checkbox"
+                    type="radio"
                     name="fileType"
                     value="csv"
                     className="form-checkbox text-green-500"
@@ -761,7 +780,7 @@ export default function AllTransactionsPage() {
                 <label className="flex justify-between items-center py-3 border-b border-gray-200 cursor-pointer">
                   <span className="text-gray-700 text-sm">Excel</span>
                   <input
-                    type="checkbox"
+                    type="radio"
                     name="fileType"
                     value="excel"
                     className="form-checkbox text-green-500"
@@ -778,7 +797,7 @@ export default function AllTransactionsPage() {
                   Cancel
                 </button>
                 <button
-                  onClick={exportToExcel}
+                  onClick={exportData}
                   className="px-6 py-2 bg-yellow-500 text-white text-sm font-semibold rounded-md hover:bg-yellow-600"
                 >
                   Export
