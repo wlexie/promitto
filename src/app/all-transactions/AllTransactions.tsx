@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Search, ArrowRight } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
+import DateFilter from "../components/DateFilter";
 import * as XLSX from "xlsx";
 import {
   Pagination,
@@ -19,6 +20,7 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { FaCalendarAlt } from "react-icons/fa";
 
 export interface Transaction {
   customer: string;
@@ -480,14 +482,10 @@ export default function AllTransactionsPage() {
     useState<Transaction[]>(initialTransactions);
 
   const [searchTerm, setSearchTerm] = useState("");
-
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date(),
-    endDate: new Date(),
-    key: "string",
-  });
-
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    Transaction[]
+  >([]);
   const [isExportModalVisible, setIsExportModalVisible] = useState(false);
   const [exportType, setExportType] = useState("all");
   const [fileType, setFileType] = useState("csv");
@@ -536,14 +534,13 @@ export default function AllTransactionsPage() {
     setCurrentPage(1); // Reset to the first page after filtering
   };
 
-  const handleFilterByDate = () => {
-    const { startDate, endDate } = dateRange;
+  const handleDateChange = (startDate: Date, endDate: Date) => {
     const filteredTransactions = initialTransactions.filter((transaction) => {
       const transactionDate = new Date(transaction.date);
       return transactionDate >= startDate && transactionDate <= endDate;
     });
     setTransactions(filteredTransactions);
-    setIsDatePickerOpen(false);
+    setShowDateFilter(false);
     setCurrentPage(1); // Reset to the first page after filtering
   };
 
@@ -694,14 +691,20 @@ export default function AllTransactionsPage() {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-gray-500 focus:border-gray-500"
               />
             </div>
-
-            <button
-              onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-              className="px-4 py-2 text-gray-700 rounded-md hover:bg-gray-400 border border-gray-300"
-            >
-              Filter by Date
-            </button>
-
+            <div className="relative">
+              <button
+                onClick={() => setShowDateFilter(!showDateFilter)}
+                className="px-4 py-2 text-gray-700 rounded-md hover:bg-gray-400 border border-gray-300"
+              >
+                <FaCalendarAlt /> Filter by Date
+              </button>
+              {/* Date Filter Component as a Popover */}
+              {showDateFilter && (
+                <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-lg p-4 z-10">
+                  <DateFilter onChange={handleDateChange} />
+                </div>
+              )}
+            </div>
             <button
               onClick={openExportModal}
               className="px-4 py-2 text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
@@ -807,7 +810,7 @@ export default function AllTransactionsPage() {
           </div>
         )}
 
-        {isDatePickerOpen && (
+        {/* {isDatePickerOpen && (
           <div className="mt-4 bg-white border border-gray-200 rounded-lg shadow-md p-4">
             <DateRangePicker
               ranges={[dateRange]}
@@ -829,7 +832,7 @@ export default function AllTransactionsPage() {
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
         <div className="mt-6 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
           <table className="w-full table-auto text-left">

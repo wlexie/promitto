@@ -13,76 +13,40 @@ interface Transaction {
   status: string;
   date: string;
   purpose: string;
+  senderPhone: string;
 }
 
 const Table: FC = () => {
-  const transactions: Transaction[] = [
-    {
-      avatar: "/avatar.png",
-      id: "TUM123465",
-      customer: "Alice Smith",
-      amount: "30,000",
-      origin: "UK",
-      destination: "Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "12/16/2024, 10:00:00 AM",
-      purpose: "Deposit",
-    },
-    {
-      avatar: "/avatar.png",
-      id: "TUM123466",
-      customer: "Reagan",
-      amount: "30,000",
-      origin: "UK",
-      destination: "Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "12/10/2024, 10:00:00 AM",
-      purpose: "Loan repayment",
-    },
-    {
-      avatar: "/avatar.png",
-      id: "TUM123467",
-      customer: "Reagan",
-      amount: "30,000",
-      origin: "UK",
-      destination: "Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "11/11/2024, 10:00:00 AM",
-      purpose: "Loan repayment",
-    },
-    {
-      avatar: "/avatar3.jpg",
-      id: "TUM123468",
-      customer: "Mike",
-      amount: "30,000",
-      origin: "UK",
-      destination: "Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "12/12/2024, 10:00:00 AM",
-      purpose: "Loan repayment",
-    },
-    {
-      avatar: "/avatar4.jpg",
-      id: "TUM123469",
-      customer: "Zach",
-      amount: "30,000",
-      origin: "UK",
-      destination: "Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "12/10/2024, 10:00:00 AM",
-      purpose: "Loan repayment",
-    },
-  ];
-
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  useEffect(() => {
+    fetch(
+      "https://api.tuma-app.com/api/transfer/partner-transactions?page=1&size=5"
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        const mappedTransactions = data.map((item: any) => ({
+          avatar: "/avatar.png", // Default avatar
+          id: item.transactionReference,
+          customer: item.senderName,
+          amount: `KES ${item.recipientAmount.toLocaleString()}`,
+          origin: "UK",
+          destination: item.receiverName,
+          channel: item.transactionType,
+          status: item.status === "SUCCESS" ? "Successful" : "Failed",
+          date: new Date(item.date).toLocaleString(),
+          purpose: "Transfer",
+          senderPhone: item.senderPhone,
+        }));
+        setTransactions(mappedTransactions);
+      })
+      .catch((error) => console.error("Error fetching transactions:", error));
+  });
+
   useEffect(() => {
     if (selectedTransaction) {
       setIsModalVisible(true);
@@ -169,7 +133,7 @@ const Table: FC = () => {
     setIsModalVisible(false);
     setTimeout(() => {
       setSelectedTransaction(null);
-    }, 300); // Matches the transition duration
+    }, 420); // Matches the transition duration
   };
 
   return (
@@ -187,6 +151,7 @@ const Table: FC = () => {
               <th className="px-6 py-3">Origin</th>
               <th className="px-6 py-3">Channel</th>
               <th className="px-6 py-3">Status</th>
+              <th className="px-6 py-3">Date</th>
             </tr>
           </thead>
           <tbody>
@@ -217,6 +182,7 @@ const Table: FC = () => {
                 >
                   {transaction.status}
                 </td>
+                <td className="px-6 py-4">{transaction.date}</td>
               </tr>
             ))}
           </tbody>
@@ -265,7 +231,7 @@ const Table: FC = () => {
                   </svg>
                 </div>
                 <h3 className="text-2xl font-bold text-gray-800 mt-4">
-                  KES {selectedTransaction.amount}
+                  {selectedTransaction.amount}
                 </h3>
                 <p className="text-gray-500 mt-1">
                   Successfully sent to{" "}
@@ -328,7 +294,9 @@ const Table: FC = () => {
                         {selectedTransaction.customer}
                       </p>
                       {/*phone number*/}
-                      <p className="text-gray-500 text-lg">+254 721533799</p>
+                      <p className="text-gray-500 text-lg">
+                        {selectedTransaction.senderPhone}
+                      </p>
                     </div>
                   </div>
                 </div>
