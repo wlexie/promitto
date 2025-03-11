@@ -81,83 +81,6 @@ export default function AllTransactionsPage() {
       purpose: "Loan Repayment",
     },
     {
-      customer: "Alex",
-      transactionId: "TUM543212",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "04/10/2024, 10:00:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Alice",
-      transactionId: "TUM542210",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar4.jpg",
-      purpose: "Deposit",
-    },
-    {
-      customer: "Alice",
-      transactionId: "TUM5433210",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "MPESA",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar4.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Zach",
-      transactionId: "TUM5432107",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Reagan",
-      transactionId: "TUM12346659",
-      amount: "30,000",
-      origin: "UK - Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "07/10/2024, 10:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Deposit",
-    },
-    {
-      customer: "Alex",
-      transactionId: "TUM5439910",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/13/2024, 12:00:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Mike",
-      transactionId: "TUM54321123",
-      amount: "500,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "11/15/2024, 08:30:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Deposit",
-    },
-    {
       customer: "Reagan",
       transactionId: "TUM123470",
       amount: "30,000",
@@ -245,237 +168,6 @@ export default function AllTransactionsPage() {
       avatar: "/avatar2.jpg",
       purpose: "Deposit",
     },
-    {
-      customer: "Reagan",
-      transactionId: "TUM12346859",
-      amount: "30,000",
-      origin: "UK - Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "12/18/2024, 09:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Alex",
-      transactionId: "TUM54321253",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "04/10/2024, 10:00:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Alice",
-      transactionId: "TUM5422120",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar4.jpg",
-      purpose: "Deposit",
-    },
-    {
-      customer: "Alice",
-      transactionId: "TUM54332766",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "MPESA",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar4.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Zach",
-      transactionId: "TUM543210007",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Reagan",
-      transactionId: "TUM123461222",
-      amount: "30,000",
-      origin: "UK - Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "07/10/2024, 10:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Deposit",
-    },
-    {
-      customer: "Alex",
-      transactionId: "TUM54321088",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/13/2024, 12:00:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Mike",
-      transactionId: "TUM54321541",
-      amount: "500,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "11/15/2024, 08:30:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Deposit",
-    },
-    {
-      customer: "Reagan",
-      transactionId: "TUM1234667",
-      amount: "30,000",
-      origin: "UK - Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "12/18/2024, 09:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Alex",
-      transactionId: "TUM54321112",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "04/10/2024, 10:00:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Alice",
-      transactionId: "TUM54221765",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar4.jpg",
-      purpose: "Deposit",
-    },
-    {
-      customer: "Alice",
-      transactionId: "TUM5433210123",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "MPESA",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar4.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Zach",
-      transactionId: "TUM54321075",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Reagan",
-      transactionId: "TUM123465923",
-      amount: "30,000",
-      origin: "UK - Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "07/10/2024, 10:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Deposit",
-    },
-    {
-      customer: "Alex",
-      transactionId: "TUM543210122",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/13/2024, 12:00:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Mike",
-      transactionId: "TUM543211333",
-      amount: "500,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "11/15/2024, 08:30:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Deposit",
-    },
-    {
-      customer: "Reagan",
-      transactionId: "TUM123469555",
-      amount: "30,000",
-      origin: "UK - Kenya",
-      channel: "MPESA",
-      status: "Successful",
-      date: "12/18/2024, 09:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Alex",
-      transactionId: "TUM543212344",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "04/10/2024, 10:00:00 AM",
-      avatar: "/avatar2.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Alice",
-      transactionId: "TUM542210876",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar4.jpg",
-      purpose: "Deposit",
-    },
-    {
-      customer: "Alice",
-      transactionId: "TUM5433210338",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "MPESA",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar4.jpg",
-      purpose: "Loan Repayment",
-    },
-    {
-      customer: "Zach",
-      transactionId: "TUM54321078765",
-      amount: "50,000",
-      origin: "US - Kenya",
-      channel: "Bank Transfer",
-      status: "Pending",
-      date: "12/10/2024, 10:00:00 AM",
-      avatar: "/avatar.png",
-      purpose: "Loan Repayment",
-    },
   ];
 
   const [transactions, setTransactions] =
@@ -505,20 +197,20 @@ export default function AllTransactionsPage() {
   const handlePageNavigation = (page: number) => {
     setCurrentPage(page);
   };
-  const exportData = () => {
-    let dataToExport;
-    if (exportType === "all") {
-      dataToExport = initialTransactions;
-    } else {
-      dataToExport = transactions; // This will be the filtered transactions
-    }
-    if (fileType === "csv") {
-      console.log("Exporting data as CSV...");
-    } else {
-      exportToExcel(dataToExport, dateRange);
-    }
-    closeExportModal();
-  };
+  // const exportData = () => {
+  //   let dataToExport;
+  //   if (exportType === "all") {
+  //     dataToExport = initialTransactions;
+  //   } else {
+  //     dataToExport = transactions; // This will be the filtered transactions
+  //   }
+  //   if (fileType === "csv") {
+  //     console.log("Exporting data as CSV...");
+  //   } else {
+  //     exportToExcel(dataToExport, dateRange);
+  //   }
+  //   closeExportModal();
+  // };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
@@ -800,7 +492,7 @@ export default function AllTransactionsPage() {
                   Cancel
                 </button>
                 <button
-                  onClick={exportData}
+                  // onClick={exportData}
                   className="px-6 py-2 bg-yellow-500 text-white text-sm font-semibold rounded-md hover:bg-yellow-600"
                 >
                   Export
