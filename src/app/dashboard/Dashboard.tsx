@@ -16,7 +16,7 @@ const Card = ({
   value: string;
 }) => {
   return (
-    <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
+    <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow-sm text-lg">
       <div className="p-2 bg-yellow-100 rounded-md text-xl">{icon}</div>
       <div>
         <p className="text-xl font-semibold text-gray-800">{value}</p>

@@ -22,7 +22,7 @@ function Chart() {
       </CardHeader>
       <CardContent>
         <BarChart
-          width={400}
+          width={390}
           height={300}
           data={chartData}
           layout="vertical"
