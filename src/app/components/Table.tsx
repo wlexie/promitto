@@ -20,12 +20,14 @@ interface Transaction {
 
 const Table: FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     fetch(
       "https://api.tuma-app.com/api/transfer/partner-transactions?page=1&size=5"
     )
@@ -47,9 +49,13 @@ const Table: FC = () => {
           transactionReference: item.transactionReference,
         }));
         setTransactions(mappedTransactions);
+        setLoading(false);
       })
-      .catch((error) => console.error("Error fetching transactions:", error));
-  });
+      .catch((error) => {
+        console.error("Error fetching transactions:", error);
+        setLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
     if (selectedTransaction) {
@@ -62,6 +68,10 @@ const Table: FC = () => {
   };
 
   const handleDownloadReceipt = async () => {
+    if (!selectedTransaction || selectedTransaction.status !== "Successful") {
+      return;
+    }
+
     const receiptElement = document.getElementById("receipt");
     if (!receiptElement) {
       console.error("Receipt element not found in the DOM");
@@ -140,6 +150,78 @@ const Table: FC = () => {
     }, 420); // Matches the transition duration
   };
 
+  const renderStatusIcon = () => {
+    if (selectedTransaction?.status === "Successful") {
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="60"
+          height="60"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="#048020"
+            fillRule="evenodd"
+            d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10m-1.177-7.86l-2.765-2.767L7 12.431l3.119 3.121a1 1 0 0 0 1.414 0l5.952-5.95l-1.062-1.062z"
+          />
+        </svg>
+      );
+    } else {
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="60"
+          height="60"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="#ff0000"
+            fillRule="evenodd"
+            d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2m3.707 12.293a1 1 0 1 1-1.414 1.414L12 13.414l-2.293 2.293a1 1 0 0 1-1.414-1.414L10.586 12L8.293 9.707a1 1 0 0 1 1.414-1.414L12 10.586l2.293-2.293a1 1 0 0 1 1.414 1.414L13.414 12z"
+          />
+        </svg>
+      );
+    }
+  };
+
+  const renderStatusMessage = () => {
+    if (selectedTransaction?.status === "Successful") {
+      return (
+        <>
+          <p className="text-gray-500 mt-1">
+            Successfully sent to{" "}
+            <span className="text-black font-semibold text-md">
+              Promitto LTD
+            </span>
+          </p>
+          <p className="text-md text-gray-400 mt-1">
+            on{" "}
+            <span className="text-black font-semibold">
+              {selectedTransaction.date}
+            </span>
+          </p>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <p className="text-gray-500 mt-1">
+            Transaction failed to{" "}
+            <span className="text-black font-semibold text-md">
+              Promitto LTD
+            </span>
+          </p>
+          <p className="text-md text-gray-400 mt-1">
+            on{" "}
+            <span className="text-black font-semibold">
+              {selectedTransaction?.date}
+            </span>
+          </p>
+        </>
+      );
+    }
+  };
+
   return (
     <div className="bg-gray-100 p-4">
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
@@ -159,36 +241,50 @@ const Table: FC = () => {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((transaction) => (
-              <tr
-                key={transaction.id}
-                className="cursor-pointer hover:bg-gray-100"
-                onClick={() => handleRowClick(transaction)}
-              >
-                <td className="px-6 py-4 flex items-center">
-                  <img
-                    src={transaction.avatar}
-                    alt={`${transaction.customer}'s Avatar`}
-                    className="w-8 h-8 rounded-full mr-4"
-                  />
-                  {transaction.customer}
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  Loading transactions...
                 </td>
-                <td className="px-6 py-4">{transaction.id}</td>
-                <td className="px-6 py-4">{transaction.amount}</td>
-                <td className="px-6 py-4">{transaction.origin}</td>
-                <td className="px-6 py-4">{transaction.channel}</td>
-                <td
-                  className={`px-6 py-4 font-medium ${
-                    transaction.status === "Successful"
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
-                >
-                  {transaction.status}
-                </td>
-                <td className="px-6 py-4">{transaction.date}</td>
               </tr>
-            ))}
+            ) : transactions.length > 0 ? (
+              transactions.map((transaction) => (
+                <tr
+                  key={transaction.id}
+                  className="cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleRowClick(transaction)}
+                >
+                  <td className="px-6 py-4 flex items-center">
+                    <img
+                      src={transaction.avatar}
+                      alt={`${transaction.customer}'s Avatar`}
+                      className="w-8 h-8 rounded-full mr-4"
+                    />
+                    {transaction.customer}
+                  </td>
+                  <td className="px-6 py-4">{transaction.id}</td>
+                  <td className="px-6 py-4">{transaction.amount}</td>
+                  <td className="px-6 py-4">{transaction.origin}</td>
+                  <td className="px-6 py-4">{transaction.channel}</td>
+                  <td
+                    className={`px-6 py-4 font-medium ${
+                      transaction.status === "Successful"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {transaction.status}
+                  </td>
+                  <td className="px-6 py-4">{transaction.date}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                  No transactions found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -217,40 +313,18 @@ const Table: FC = () => {
             </button>
 
             {/* Modal Content */}
-            <div className="flex flex-col h-screen">
+            <div className="flex flex-col h-full">
               <div className="flex-grow overflow-y-auto">
                 <div className="mt-6 space-y-8">
                   {/* Confirmation Section */}
                   <div className="text-center mb-6">
                     <div className=" mx-auto rounded-full flex items-center justify-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="60"
-                        height="60"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          fill="#048020"
-                          fill-rule="evenodd"
-                          d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10m-1.177-7.86l-2.765-2.767L7 12.431l3.119 3.121a1 1 0 0 0 1.414 0l5.952-5.95l-1.062-1.062z"
-                        />
-                      </svg>
+                      {renderStatusIcon()}
                     </div>
                     <h3 className="text-2xl font-bold text-gray-800 mt-4">
                       {selectedTransaction.amount}
                     </h3>
-                    <p className="text-gray-500 mt-1">
-                      Successfully sent to{" "}
-                      <span className="text-black font-semibold text-md">
-                        Promitto LTD
-                      </span>
-                    </p>
-                    <p className="text-md text-gray-400 mt-1">
-                      on{" "}
-                      <span className="text-black font-semibold">
-                        {selectedTransaction.date}
-                      </span>
-                    </p>
+                    {renderStatusMessage()}
                   </div>
 
                   {/* Transaction Details */}
@@ -266,8 +340,7 @@ const Table: FC = () => {
                       <p>{selectedTransaction.origin}</p>
                       <p className="text-gray-400">Destination:</p>
                       <p>{selectedTransaction.destination}</p>
-                      <p className="text-gray-400">Promitto Code:</p>
-                      <p>PR098771</p>
+
                       <p className="text-gray-400">Reference Code:</p>
                       <p>{selectedTransaction.transactionReference}</p>
                     </div>
@@ -313,7 +386,12 @@ const Table: FC = () => {
                     <div className="mt-4 flex items-center justify-center">
                       <button
                         onClick={handleDownloadReceipt}
-                        className="flex items-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600"
+                        disabled={selectedTransaction.status !== "Successful"}
+                        className={`flex items-center gap-2 ${
+                          selectedTransaction.status === "Successful"
+                            ? "text-yellow-500 hover:text-yellow-600"
+                            : "text-gray-400 cursor-not-allowed"
+                        } font-semibold`}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -334,118 +412,136 @@ const Table: FC = () => {
                     </div>
                   </div>
                   {/* Hidden Receipt for PDF Generation */}
-                  <div
-                    id="receipt"
-                    style={{
-                      opacity: 0,
-                      position: "absolute",
-                      pointerEvents: "none",
-                    }}
-                    className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-lg text-gray-700"
-                  >
-                    {/* Logo */}
-                    <div className="text-center">
-                      <img
-                        src="/logoimage.png"
-                        className="w-8 h-8 mx-auto mt-1"
-                      />
-                    </div>
-
-                    {/* Amount */}
-                    <h2 className="text-2xl font-bold text-black text-center mt-2">
-                      KES {selectedTransaction.amount}
-                    </h2>
-
-                    {/* Success Message */}
-                    <p className="text-gray-500 text-center ">
-                      Successfully sent to{" "}
-                      <span className="font-semibold text-black">
-                        Promitto LTD
-                      </span>
-                    </p>
-                    <p className="text-gray-400 text-center">
-                      on{" "}
-                      <span className="font-semibold text-black">
-                        {selectedTransaction.date}
-                      </span>
-                    </p>
-
-                    {/* Receiver Details */}
-                    <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                      <h3 className="font-semibold text-black">Receiver</h3>
-                      <div className="mt-4 text-sm">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Transaction ID</span>
-                          <span className="text-black">
-                            #{selectedTransaction.id}
-                          </span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Channel</span>
-                          <span>{selectedTransaction.channel}</span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">
-                            Purpose of payment
-                          </span>
-                          <span>Deposit</span>
-                        </div>
-                        <div className="flex justify-between  mb-1">
-                          <span className="text-gray-500">Payment Method</span>
-                          <span>Bank Transfer</span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Origin</span>
-                          <span>UK - KE</span>
-                        </div>
-                        <div className="border-t border-gray-300 my-2"></div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Transaction Fee</span>
-                          <span>0.00</span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Exchange Rate</span>
-                          <span>1 GBP = KES 150 </span>
-                        </div>
+                  {selectedTransaction.status === "Successful" && (
+                    <div
+                      id="receipt"
+                      style={{
+                        opacity: 0,
+                        position: "absolute",
+                        pointerEvents: "none",
+                      }}
+                      className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-lg text-gray-700"
+                    >
+                      {/* Logo */}
+                      <div className="text-center">
+                        <img
+                          src="/logoimage.png"
+                          className="w-8 h-8 mx-auto mt-1"
+                        />
                       </div>
-                    </div>
 
-                    {/* Sender Details */}
-                    <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                      <h3 className="font-semibold text-black">Sender</h3>
-                      <div className="mt-1 text-sm">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Sender Name</span>
-                          <span className="text-black">
-                            {selectedTransaction.customer}
-                          </span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Phone Number</span>
-                          <span>+254 712 455 667</span>
-                        </div>
-                      </div>
-                    </div>
+                      {/* Amount */}
+                      <h2 className="text-2xl font-bold text-black text-center mt-2">
+                        {selectedTransaction.amount}
+                      </h2>
 
-                    {/* Footer */}
-                    <div className="text-center text-sm mt-2">
-                      <p className="font-semibold">Thank you for using Tuma!</p>
-                      <p className="text-gray-500 italic">
-                        For inquiries or assistance, contact us:
+                      {/* Success Message */}
+                      <p className="text-gray-500 text-center ">
+                        Successfully sent to{" "}
+                        <span className="font-semibold text-black">
+                          Promitto LTD
+                        </span>
                       </p>
-                      <p className="text-gray-500">support@tuma.com</p>
-                      <p className="text-gray-500">+447-778-024-995</p>
-                      <a
-                        href="https://tuma.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <div>
-                          <p className="text-blue-500">tuma.com</p>
+                      <p className="text-gray-400 text-center">
+                        on{" "}
+                        <span className="font-semibold text-black">
+                          {selectedTransaction.date}
+                        </span>
+                      </p>
+
+                      {/* Receiver Details */}
+                      <div className="bg-gray-100 p-4 rounded-lg mt-3">
+                        <h3 className="font-semibold text-black">Receiver</h3>
+                        <div className="mt-4 text-sm">
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">
+                              Transaction ID
+                            </span>
+                            <span className="text-black">
+                              #{selectedTransaction.id}
+                            </span>
+                          </div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">
+                              Transaction Reference
+                            </span>
+                            <span className="text-black">
+                              #{selectedTransaction.transactionReference}
+                            </span>
+                          </div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">Channel</span>
+                            <span>{selectedTransaction.channel}</span>
+                          </div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">
+                              Purpose of payment
+                            </span>
+                            <span>Deposit</span>
+                          </div>
+                          <div className="flex justify-between  mb-1">
+                            <span className="text-gray-500">
+                              Payment Method
+                            </span>
+                            <span>{selectedTransaction.channel}</span>
+                          </div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">Origin</span>
+                            <span>UK - KE</span>
+                          </div>
+                          <div className="border-t border-gray-300 my-2"></div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">
+                              Transaction Fee
+                            </span>
+                            <span>0.00</span>
+                          </div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">Exchange Rate</span>
+                            <span>{selectedTransaction.exchangeRate} </span>
+                          </div>
                         </div>
-                      </a>
+                      </div>
+
+                      {/* Sender Details */}
+                      <div className="bg-gray-100 p-4 rounded-lg mt-3">
+                        <h3 className="font-semibold text-black">Sender</h3>
+                        <div className="mt-1 text-sm">
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">Sender Name</span>
+                            <span className="text-black">
+                              {selectedTransaction.customer}
+                            </span>
+                          </div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">Phone Number</span>
+                            <span>{selectedTransaction.senderPhone}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="text-center text-sm mt-2">
+                        <p className="font-semibold">
+                          Thank you for using Tuma!
+                        </p>
+                        <p className="text-gray-500 italic">
+                          For inquiries or assistance, contact us:
+                        </p>
+                        <p className="text-gray-500">support@tuma.com</p>
+                        <p className="text-gray-500">+447-778-024-995</p>
+                        <a
+                          href="https://tuma.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <div>
+                            <p className="text-blue-500">tuma.com</p>
+                          </div>
+                        </a>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
