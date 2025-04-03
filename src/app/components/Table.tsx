@@ -27,14 +27,16 @@ const Table: FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    fetch(
-      "https://api.tuma-app.com/api/transfer/partner-transactions?page=1&size=5"
-    )
-      .then((response) => response.json())
-      .then((data) => {
+    const fetchTransactions = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          "https://api.tuma-app.com/api/transfer/partner-transactions?page=1&size=5"
+        );
+        const data = await response.json();
+
         const mappedTransactions = data.map((item: any) => ({
-          avatar: "/avatar.png", // Default avatar
+          avatar: "/avatar.png",
           id: item.transactionId,
           customer: item.senderName,
           amount: `KES ${item.recipientAmount.toLocaleString()}`,
@@ -48,13 +50,23 @@ const Table: FC = () => {
           exchangeRate: item.exchangeRate,
           transactionReference: item.transactionReference,
         }));
+
         setTransactions(mappedTransactions);
-        setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching transactions:", error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    // Fetch immediately on mount
+    fetchTransactions();
+
+    // Poll every 10 seconds (adjust interval as needed)
+    const intervalId = setInterval(fetchTransactions, 20_000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -462,7 +474,7 @@ const Table: FC = () => {
                               Transaction ID
                             </span>
                             <span className="text-black">
-                              #{selectedTransaction.id}
+                              {selectedTransaction.id}
                             </span>
                           </div>
                           <div className="flex justify-between mb-1">
@@ -470,7 +482,7 @@ const Table: FC = () => {
                               Transaction Reference
                             </span>
                             <span className="text-black">
-                              #{selectedTransaction.transactionReference}
+                              {selectedTransaction.transactionReference}
                             </span>
                           </div>
                           <div className="flex justify-between mb-1">
