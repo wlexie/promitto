@@ -58,16 +58,31 @@ export default function AllTransactionsPage() {
 
   // Fetch transactions from API
   useEffect(() => {
+    // Update your fetchTransactions function in AllTransactionsPage
     const fetchTransactions = async () => {
       try {
         setLoading(true);
         const response = await fetch(
           `https://api.tuma-app.com/api/transfer/partner-transactions?page=${currentPage}&size=${rowsPerPage}`
         );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
-        const mappedTransactions = data.content.map((item: any) => ({
-          avatar: item.avatar || "/avatar.png", // Default avatar
+        // First, log the raw response to see the actual structure
+        console.log("API Response:", data);
+
+        // Adjust this based on the actual API response structure
+        // If the array is directly in the response:
+        const transactionsData = Array.isArray(data)
+          ? data
+          : data.content || [];
+
+        const mappedTransactions = transactionsData.map((item: any) => ({
+          avatar: item.avatar || "/avatar.png",
           transactionId: item.transactionId || "N/A",
           customer: item.senderName || item.customer || "Unknown",
           amount: item.recipientAmount
@@ -91,10 +106,15 @@ export default function AllTransactionsPage() {
         }));
 
         setTransactions(mappedTransactions);
-        setTotalPages(data.totalPages);
-        setLoading(false);
+
+        // If the API provides total pages, use it, otherwise calculate
+        setTotalPages(
+          data.totalPages || Math.ceil(data.length / rowsPerPage) || 1
+        );
       } catch (error) {
         console.error("Error fetching transactions:", error);
+        setTransactions([]);
+      } finally {
         setLoading(false);
       }
     };
@@ -634,8 +654,17 @@ export default function AllTransactionsPage() {
                         <div className="flex justify-between mb-1">
                           <span className="text-gray-500">Payment Method</span>
                           <span>
-                            {selectedTransaction.transactionType ||
-                              selectedTransaction.channel}
+                            {selectedTransaction.transactionType
+                              ?.toLowerCase()
+                              .includes("paybill")
+                              ? "PAYBILL"
+                              : selectedTransaction.transactionType
+                                  ?.toLowerCase()
+                                  .includes("bank")
+                              ? "BANK"
+                              : selectedTransaction.transactionType ||
+                                selectedTransaction.channel ||
+                                "Unknown"}
                           </span>
                         </div>
                         <div className="flex justify-between mb-1">

@@ -250,22 +250,26 @@ const Table: FC = () => {
             ) : transactions.length > 0 ? (
               transactions.map((transaction) => (
                 <tr
-                  key={transaction.id}
+                  key={transaction.id || Math.random()}
                   className="cursor-pointer hover:bg-gray-100"
                   onClick={() => handleRowClick(transaction)}
                 >
                   <td className="px-6 py-4 flex items-center">
                     <img
-                      src={transaction.avatar}
-                      alt={`${transaction.customer}'s Avatar`}
+                      src={transaction.avatar || "/avatar.png"}
+                      alt={`${transaction.customer}'s Avatar` || "Customer"}
                       className="w-8 h-8 rounded-full mr-4"
                     />
-                    {transaction.customer}
+                    {transaction.customer || transaction.customer || "Unknown"}
                   </td>
-                  <td className="px-6 py-4">{transaction.id}</td>
-                  <td className="px-6 py-4">{transaction.amount}</td>
-                  <td className="px-6 py-4">{transaction.origin}</td>
-                  <td className="px-6 py-4">{transaction.channel}</td>
+                  <td className="px-6 py-4">{transaction.id || "N/A"}</td>
+                  <td className="px-6 py-4">{transaction.amount || "0"}</td>
+                  <td className="px-6 py-4">
+                    {transaction.origin || "Unknown"}
+                  </td>
+                  <td className="px-6 py-4">
+                    {transaction.channel || "Unknown"}
+                  </td>
                   <td
                     className={`px-6 py-4 font-medium ${
                       transaction.status === "Successful"
@@ -273,7 +277,7 @@ const Table: FC = () => {
                         : "text-red-600"
                     }`}
                   >
-                    {transaction.status}
+                    {transaction.status || "Unknown"}
                   </td>
                   <td className="px-6 py-4">{transaction.date}</td>
                 </tr>
@@ -331,18 +335,18 @@ const Table: FC = () => {
                   <div className="mt-6">
                     <div className="grid grid-cols-2 gap-y-4 text-gray-700">
                       <p className="text-gray-400">Transaction ID:</p>
-                      <p>{selectedTransaction.id}</p>
+                      <p>{selectedTransaction.id || "N/A"}</p>
                       <p className="text-gray-400">Channel:</p>
-                      <p>{selectedTransaction.channel}</p>
+                      <p>{selectedTransaction.channel || "N/A"}</p>
                       <p className="text-gray-400">Purpose:</p>
-                      <p>{selectedTransaction.purpose}</p>
+                      <p>{selectedTransaction.purpose || "N/A"}</p>
                       <p className="text-gray-400">Origin:</p>
-                      <p>{selectedTransaction.origin}</p>
+                      <p>{selectedTransaction.origin || "N/A"}</p>
                       <p className="text-gray-400">Destination:</p>
-                      <p>{selectedTransaction.destination}</p>
+                      <p>{selectedTransaction.destination || "N/A"}</p>
 
                       <p className="text-gray-400">Reference Code:</p>
-                      <p>{selectedTransaction.transactionReference}</p>
+                      <p>{selectedTransaction.transactionReference || "N/A"}</p>
                     </div>
                   </div>
 
@@ -350,7 +354,7 @@ const Table: FC = () => {
                   <div>
                     <div className="grid grid-cols-2 gap-y-4 text-gray-700 border border-dotted py-2 px-2 border-gray-300">
                       <p className="text-gray-400">Exchange Rate:</p>
-                      <p>KES {selectedTransaction.exchangeRate}</p>
+                      <p>KES {selectedTransaction.exchangeRate || "N/A"}</p>
                       <p className="text-gray-400">Transaction Fee:</p>
                       <p>0.00</p>
                     </div>
@@ -363,7 +367,7 @@ const Table: FC = () => {
                       {/* Avatar */}
                       <div className="w-8 h-8 rounded-full bg-gray-100 ml-40 align-middle justify-center mb-2">
                         <img
-                          src={selectedTransaction.avatar}
+                          src={selectedTransaction.avatar || "N/A"}
                           alt="Sender Avatar"
                           className="w-full h-full rounded-full object-cover mr-6"
                         />
@@ -372,11 +376,11 @@ const Table: FC = () => {
                         {/* Sender Info */}
                         <div>
                           <p className="text-gray-700 font-semibold">
-                            {selectedTransaction.customer}
+                            {selectedTransaction.customer || "N/A"}
                           </p>
                           {/*phone number*/}
                           <p className="text-gray-500 text-lg">
-                            {selectedTransaction.senderPhone}
+                            {selectedTransaction.senderPhone || "N/A"}
                           </p>
                         </div>
                       </div>
