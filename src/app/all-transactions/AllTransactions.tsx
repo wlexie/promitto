@@ -15,12 +15,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { DateRangePicker } from "react-date-range";
+
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { FaCalendarAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaFileExport } from "react-icons/fa";
 
 export interface Transaction {
   customer?: string;
@@ -30,7 +30,6 @@ export interface Transaction {
   channel?: string;
   status?: string;
   date: string;
-  avatar?: string;
   purpose?: string;
   senderPhone?: string | null;
   exchangeRate?: number | null;
@@ -40,25 +39,35 @@ export interface Transaction {
   transactionType?: string | null;
   receiverName?: string | null;
 }
+
 export default function AllTransactionsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    Transaction[]
+  >([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [isExportModalVisible, setIsExportModalVisible] = useState(false);
-  const [exportType, setExportType] = useState("all");
-  const [fileType, setFileType] = useState("csv");
+  const [exportType, setExportType] = useState<"all" | "filtered">("all");
+  const [fileType, setFileType] = useState<"csv" | "excel">("csv");
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [dateRange, setDateRange] = useState<{
+    startDate: Date | null;
+    endDate: Date | null;
+  }>({
+    startDate: null,
+    endDate: null,
+  });
 
   const rowsPerPage = 12;
 
   // Fetch transactions from API
   useEffect(() => {
-    // Update your fetchTransactions function in AllTransactionsPage
     const fetchTransactions = async () => {
       try {
         setLoading(true);
@@ -72,17 +81,11 @@ export default function AllTransactionsPage() {
 
         const data = await response.json();
 
-        // First, log the raw response to see the actual structure
-        console.log("API Response:", data);
-
-        // Adjust this based on the actual API response structure
-        // If the array is directly in the response:
         const transactionsData = Array.isArray(data)
           ? data
           : data.content || [];
 
         const mappedTransactions = transactionsData.map((item: any) => ({
-          avatar: item.avatar || "/avatar.png",
           transactionId: item.transactionId || "N/A",
           customer: item.senderName || item.customer || "Unknown",
           amount: item.recipientAmount
@@ -92,9 +95,7 @@ export default function AllTransactionsPage() {
           destination: item.receiverName || "Unknown",
           channel: item.transactionType || item.channel || "Unknown",
           status: item.status === "SUCCESS" ? "Successful" : "Failed",
-          date: item.date
-            ? new Date(item.date).toLocaleString()
-            : "Unknown date",
+          date: item.date ? new Date(item.date).toISOString() : "Unknown date",
           purpose: item.purpose || "Transfer",
           senderPhone: item.senderPhone || "N/A",
           exchangeRate: item.exchangeRate || 0,
@@ -105,15 +106,15 @@ export default function AllTransactionsPage() {
           receiverName: item.receiverName || "Unknown",
         }));
 
-        setTransactions(mappedTransactions);
-
-        // If the API provides total pages, use it, otherwise calculate
+        setAllTransactions(mappedTransactions);
+        setFilteredTransactions(mappedTransactions);
         setTotalPages(
           data.totalPages || Math.ceil(data.length / rowsPerPage) || 1
         );
       } catch (error) {
         console.error("Error fetching transactions:", error);
-        setTransactions([]);
+        setAllTransactions([]);
+        setFilteredTransactions([]);
       } finally {
         setLoading(false);
       }
@@ -122,28 +123,174 @@ export default function AllTransactionsPage() {
     fetchTransactions();
   }, [currentPage]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toLowerCase();
-    setSearchTerm(value);
-    setCurrentPage(1); // Reset to first page when searching
-  };
+  // Filter transactions based on search term and date range
+  useEffect(() => {
+    let filtered = allTransactions;
 
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const query = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter((transaction) => {
+        return (
+          transaction.transactionId?.toString().includes(query) ||
+          transaction.customer?.toLowerCase().includes(query) ||
+          transaction.receiverName?.toLowerCase().includes(query) ||
+          transaction.amount?.toLowerCase().includes(query) ||
+          transaction.channel?.toLowerCase().includes(query)
+        );
+      });
+    }
+
+    // Apply date filter if dates are selected
+    if (dateRange.startDate && dateRange.endDate) {
+      filtered = filtered.filter((transaction) => {
+        if (transaction.date === "Unknown date") return false;
+        const transactionDate = new Date(transaction.date);
+        return (
+          transactionDate >= dateRange.startDate! &&
+          transactionDate <= dateRange.endDate!
+        );
+      });
+    }
+
+    setFilteredTransactions(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [searchTerm, allTransactions, dateRange.startDate, dateRange.endDate]);
+
+  // Handle date filter changes
   const handleDateChange = (startDate: Date, endDate: Date) => {
-    // Implement date filtering if needed
-    setShowDateFilter(false);
-    setCurrentPage(1);
+    setDateRange({ startDate, endDate });
+    console.log("Filtering from:", startDate, "to:", endDate);
+
+    // If you need to format for display:
+    const formattedStart = startDate.toLocaleString();
+    const formattedEnd = endDate.toLocaleString();
+    console.log("Formatted range:", formattedStart, "-", formattedEnd);
+    // setShowDateFilter(false);
   };
 
+  // Clear date filters
+  const clearDateFilter = () => {
+    setDateRange({ startDate: null, endDate: null });
+    console.log("Date filter cleared");
+  };
+
+  // Export data function
+  const handleExport = () => {
+    // Determine which data to export
+    const dataToExport =
+      exportType === "all" ? allTransactions : filteredTransactions;
+
+    // Generate a filename based on the applied filters
+    let fileName = "transactions";
+
+    if (exportType === "filtered") {
+      fileName += "_filtered";
+    }
+
+    if (dateRange.startDate && dateRange.endDate) {
+      const start = dateRange.startDate.toISOString().split("T")[0];
+      const end = dateRange.endDate.toISOString().split("T")[0];
+      fileName += `_from_${start}_to_${end}`;
+    }
+
+    // Format data for export
+    const formatDateTime = (dateString: string): string => {
+      if (dateString === "Unknown date") return dateString;
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    };
+
+    if (fileType === "excel") {
+      // Prepare the data for Excel export
+      const exportData = dataToExport.map((t) => ({
+        "Transaction ID": t.transactionId,
+        Customer: t.customer,
+        "Amount (KES)": t.amount,
+        Origin: t.origin,
+        Destination: t.receiverName,
+        Channel: t.channel,
+        Status: t.status,
+        Date: formatDateTime(t.date),
+        Purpose: t.purpose,
+        "Sender Phone": t.senderPhone,
+        "Exchange Rate": t.exchangeRate,
+        Reference: t.transactionReference,
+      }));
+
+      // Create worksheet and workbook
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+
+      // Export to Excel file
+      XLSX.writeFile(wb, `${fileName}.xlsx`);
+    } else {
+      // Prepare the data for CSV export
+      const headers = [
+        "Transaction ID",
+        "Customer",
+        "Amount (KES)",
+        "Origin",
+        "Destination",
+        "Channel",
+        "Status",
+        "Date",
+        "Purpose",
+        "Sender Phone",
+        "Exchange Rate",
+        "Reference",
+      ];
+
+      const rows = dataToExport.map((t) => [
+        t.transactionId,
+        t.customer,
+        t.amount,
+        t.origin,
+        t.receiverName,
+        t.channel,
+        t.status,
+        formatDateTime(t.date),
+        t.purpose,
+        t.senderPhone,
+        t.exchangeRate,
+        t.transactionReference,
+      ]);
+
+      // Create CSV content
+      const csvContent = [
+        headers.join(","),
+        ...rows.map((row) => row.map((field) => `"${field}"`).join(",")),
+      ].join("\n");
+
+      // Create download link
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${fileName}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Close modal
+    setIsExportModalVisible(false);
+  };
+
+  // Handle row click to show transaction details
   const handleRowClick = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
   };
 
+  // Show modal when transaction is selected
   useEffect(() => {
     if (selectedTransaction) {
       setIsModalVisible(true);
     }
   }, [selectedTransaction]);
 
+  // Close modal and clear selected transaction
   const closeModal = () => {
     setIsModalVisible(false);
     setTimeout(() => {
@@ -151,6 +298,7 @@ export default function AllTransactionsPage() {
     }, 300);
   };
 
+  // Download receipt as PDF
   const handleDownloadReceipt = async () => {
     if (!selectedTransaction) return;
 
@@ -208,6 +356,7 @@ export default function AllTransactionsPage() {
     }
   };
 
+  // Render status icon for modal
   const renderStatusIcon = () => {
     if (selectedTransaction?.status === "Successful") {
       return (
@@ -242,6 +391,7 @@ export default function AllTransactionsPage() {
     }
   };
 
+  // Render status message for modal
   const renderStatusMessage = () => {
     if (selectedTransaction?.status === "Successful") {
       return (
@@ -293,32 +443,56 @@ export default function AllTransactionsPage() {
                 type="text"
                 placeholder="Search by name, ID, or channel..."
                 value={searchTerm}
-                onChange={handleSearch}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-gray-500 focus:border-gray-500"
               />
             </div>
             <div className="relative">
               <button
-                onClick={() => setShowDateFilter(!showDateFilter)}
-                className="px-4 py-2 text-gray-700 rounded-md hover:bg-gray-400 border border-gray-300"
+                onClick={() => setShowDateFilter(true)}
+                className="flex items-center gap-2 px-4 py-2 text-gray-700 rounded-md hover:bg-gray-400 border border-gray-300"
               >
-                Filter by Date
+                <FaCalendarAlt /> Filter by Date
               </button>
               {showDateFilter && (
                 <div className="absolute right-0 mt-2 bg-white border rounded-md shadow-lg p-4 z-10">
-                  <DateFilter onChange={handleDateChange} />
+                  <DateFilter
+                    isOpen={showDateFilter}
+                    onClose={() => setShowDateFilter(false)}
+                    onChange={handleDateChange}
+                    onClear={clearDateFilter}
+                    initialStartDate={dateRange.startDate}
+                    initialEndDate={dateRange.endDate}
+                  />
+                  {dateRange.startDate && (
+                    <button
+                      onClick={clearDateFilter}
+                      className="mt-2 text-sm text-blue-500 hover:text-blue-700"
+                    >
+                      Clear date filter
+                    </button>
+                  )}
                 </div>
               )}
             </div>
             <button
               onClick={() => setIsExportModalVisible(true)}
-              className="px-4 py-2 text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+              className="flex items-center gap-2 px-4 py-2 text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
             >
-              Export
+              <FaFileExport /> Export
             </button>
           </div>
         </div>
 
+        {/* Date filter active indicator */}
+        {dateRange.startDate && (
+          <div className="text-sm text-gray-500">
+            Showing transactions from {dateRange.startDate.toLocaleDateString()}{" "}
+            to {dateRange.endDate?.toLocaleDateString()}
+          </div>
+        )}
+
+        {/* Export Modal */}
         {isExportModalVisible && (
           <div className="fixed inset-0 z-50 flex justify-end">
             <div
@@ -398,7 +572,7 @@ export default function AllTransactionsPage() {
                   Cancel
                 </button>
                 <button
-                  // onClick={exportData}
+                  onClick={handleExport}
                   className="px-6 py-2 bg-yellow-500 text-white text-sm font-semibold rounded-md hover:bg-yellow-600"
                 >
                   Export
@@ -408,6 +582,7 @@ export default function AllTransactionsPage() {
           </div>
         )}
 
+        {/* Transactions Table */}
         <div className="mt-6 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
           <table className="w-full table-auto text-left">
             <thead className="bg-white">
@@ -432,46 +607,46 @@ export default function AllTransactionsPage() {
                     Loading transactions...
                   </td>
                 </tr>
-              ) : transactions.length > 0 ? (
-                transactions.map((transaction) => (
-                  <tr
-                    key={transaction.transactionId}
-                    className="text-gray-700 cursor-pointer text-sm hover:bg-gray-50"
-                    onClick={() => handleRowClick(transaction)}
-                  >
-                    <td className="py-4 px-6 flex items-center gap-2">
-                      <img
-                        src={transaction.avatar}
-                        alt={transaction.customer}
-                        className="h-8 w-8 rounded-full object-cover"
-                      />
-                      {transaction.senderName || transaction.customer}
-                    </td>
-                    <td className="py-3 px-4">{transaction.transactionId}</td>
-                    <td className="py-3 px-4">{transaction.amount}</td>
-                    <td className="py-3 px-4">{transaction.origin}</td>
-                    <td className="py-3 px-4">
-                      {transaction.transactionType || transaction.channel}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-3 py-1 text-sm font-medium rounded-full ${
-                          transaction.status === "Successful"
-                            ? "text-green-600 bg-green-100"
-                            : "text-red-600 bg-red-100"
-                        }`}
-                      >
-                        {transaction.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      {new Date(transaction.date).toLocaleString()}
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <ArrowRight className="h-5 w-5 text-gray-500" />
-                    </td>
-                  </tr>
-                ))
+              ) : filteredTransactions.length > 0 ? (
+                filteredTransactions
+                  .slice(
+                    (currentPage - 1) * rowsPerPage,
+                    currentPage * rowsPerPage
+                  )
+                  .map((transaction) => (
+                    <tr
+                      key={transaction.transactionId}
+                      className="text-gray-700 cursor-pointer text-sm hover:bg-gray-50"
+                      onClick={() => handleRowClick(transaction)}
+                    >
+                      <td className="py-4 px-6">
+                        {transaction.senderName || transaction.customer}
+                      </td>
+                      <td className="py-3 px-4">{transaction.transactionId}</td>
+                      <td className="py-3 px-4">{transaction.amount}</td>
+                      <td className="py-3 px-4">{transaction.origin}</td>
+                      <td className="py-3 px-4">
+                        {transaction.transactionType || transaction.channel}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-3 py-1 text-sm font-medium rounded-full ${
+                            transaction.status === "Successful"
+                              ? "text-green-600 bg-green-100"
+                              : "text-red-600 bg-red-100"
+                          }`}
+                        >
+                          {transaction.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        {new Date(transaction.date).toLocaleString()}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <ArrowRight className="h-5 w-5 text-gray-500" />
+                      </td>
+                    </tr>
+                  ))
               ) : (
                 <tr>
                   <td
@@ -486,240 +661,7 @@ export default function AllTransactionsPage() {
           </table>
         </div>
 
-        {selectedTransaction && (
-          <div className="fixed inset-0 z-50 flex justify-end">
-            <div
-              className="bg-black bg-opacity-50 w-full h-full"
-              onClick={closeModal}
-            ></div>
-            <div
-              className={`bg-white w-[28rem] h-full shadow-lg p-8 overflow-y-auto fixed right-0 transform transition-transform duration-300 ${
-                isModalVisible ? "translate-x-0" : "translate-x-full"
-              }`}
-            >
-              <button
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
-                onClick={closeModal}
-              >
-                &times;
-              </button>
-
-              <div className="space-y-8">
-                {" "}
-                {/* Removed mt-6 to eliminate top space */}
-                <div className="text-center mb-6">
-                  <div className="mx-auto rounded-full flex items-center justify-center">
-                    {renderStatusIcon()}
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mt-4">
-                    {selectedTransaction.amount}
-                  </h3>
-                  {renderStatusMessage()}
-                </div>
-                <div className="mt-6">
-                  <div className="grid grid-cols-2 gap-y-4 text-gray-700">
-                    <p className="text-gray-400">Transaction ID:</p>
-                    <p>#{selectedTransaction.transactionId}</p>
-                    <p className="text-gray-400">Channel:</p>
-                    <p>
-                      {selectedTransaction.transactionType ||
-                        selectedTransaction.channel}
-                    </p>
-                    <p className="text-gray-400">Purpose:</p>
-                    <p>{selectedTransaction.purpose}</p>
-                    <p className="text-gray-400">Origin:</p>
-                    <p>{selectedTransaction.origin}</p>
-                    <p className="text-gray-400">Destination:</p>
-                    <p>{selectedTransaction.receiverName || "Kenya"}</p>
-                    <p className="text-gray-400">Reference Code:</p>
-                    <p>{selectedTransaction.transactionReference}</p>
-                  </div>
-                </div>
-                <div>
-                  <div className="grid grid-cols-2 gap-y-4 text-gray-700 border border-dotted py-2 px-2 border-gray-300">
-                    <p className="text-gray-400">Exchange Rate:</p>
-                    <p>KES {selectedTransaction.exchangeRate}</p>
-                    <p className="text-gray-400">Transaction Fee:</p>
-                    <p>0.00</p>
-                  </div>
-                </div>
-                <div className="mt-8 border-t pt-4 text-center">
-                  <h4 className="text-lg font-bold text-gray-800 mb-4">
-                    Sender
-                  </h4>
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center">
-                      <img
-                        src={selectedTransaction.avatar}
-                        alt="Sender Avatar"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-gray-700 font-semibold">
-                        {selectedTransaction.senderName ||
-                          selectedTransaction.customer}
-                      </p>
-                      <p className="text-gray-500 text-lg">
-                        {selectedTransaction.senderPhone}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                {selectedTransaction.status === "Successful" && (
-                  <div className="mt-8 text-center">
-                    <button
-                      className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600 mx-auto"
-                      onClick={handleDownloadReceipt}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                      Download Receipt
-                    </button>
-                  </div>
-                )}
-                {selectedTransaction.status === "Successful" && (
-                  <div
-                    id="receipt"
-                    style={{
-                      opacity: 0,
-                      position: "absolute",
-                      pointerEvents: "none",
-                    }}
-                    className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-lg text-gray-700"
-                  >
-                    <div className="text-center">
-                      <img
-                        src="/logoimage.png"
-                        className="w-8 h-8 mx-auto mt-1"
-                      />
-                    </div>
-                    <h2 className="text-2xl font-bold text-black text-center mt-2">
-                      {selectedTransaction.amount}
-                    </h2>
-                    <p className="text-gray-500 text-center">
-                      Successfully sent to{" "}
-                      <span className="font-semibold text-black">
-                        {selectedTransaction.receiverName || "Promitto LTD"}
-                      </span>
-                    </p>
-                    <p className="text-gray-400 text-center">
-                      on{" "}
-                      <span className="font-semibold text-black">
-                        {selectedTransaction.date}
-                      </span>
-                    </p>
-                    <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                      <h3 className="font-semibold text-black">Receiver</h3>
-                      <div className="mt-4 text-sm">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Transaction ID</span>
-                          <span className="text-black">
-                            #{selectedTransaction.transactionId}
-                          </span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">
-                            Transaction Reference
-                          </span>
-                          <span className="text-black">
-                            #{selectedTransaction.transactionReference}
-                          </span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Channel</span>
-                          <span>
-                            {selectedTransaction.transactionType ||
-                              selectedTransaction.channel}
-                          </span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">
-                            Purpose of payment
-                          </span>
-                          <span>{selectedTransaction.purpose}</span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Payment Method</span>
-                          <span>
-                            {selectedTransaction.transactionType
-                              ?.toLowerCase()
-                              .includes("paybill")
-                              ? "PAYBILL"
-                              : selectedTransaction.transactionType
-                                  ?.toLowerCase()
-                                  .includes("bank")
-                              ? "BANK"
-                              : selectedTransaction.transactionType ||
-                                selectedTransaction.channel ||
-                                "Unknown"}
-                          </span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Origin</span>
-                          <span>{selectedTransaction.origin}</span>
-                        </div>
-                        <div className="border-t border-gray-300 my-2"></div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Transaction Fee</span>
-                          <span>0.00</span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Exchange Rate</span>
-                          <span>{selectedTransaction.exchangeRate}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                      <h3 className="font-semibold text-black">Sender</h3>
-                      <div className="mt-1 text-sm">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Sender Name</span>
-                          <span className="text-black">
-                            {selectedTransaction.senderName ||
-                              selectedTransaction.customer}
-                          </span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Phone Number</span>
-                          <span>{selectedTransaction.senderPhone}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-center text-sm mt-2">
-                      <p className="font-semibold">Thank you for using Tuma!</p>
-                      <p className="text-gray-500 italic">
-                        For inquiries or assistance, contact us:
-                      </p>
-                      <p className="text-gray-500">support@tuma.com</p>
-                      <p className="text-gray-500">+447-778-024-995</p>
-                      <a
-                        href="https://tuma.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <p className="text-blue-500">tuma.com</p>
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
+        {/* Pagination */}
         <Pagination className="text-xl mt-4">
           <PaginationContent>
             <PaginationItem>
@@ -777,6 +719,269 @@ export default function AllTransactionsPage() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
+
+        {/* Transaction Details Modal */}
+        {selectedTransaction && (
+          <div className="fixed inset-0 z-50 flex justify-end">
+            <div
+              className="bg-black bg-opacity-50 w-full h-full"
+              onClick={closeModal}
+            ></div>
+            <div
+              className={`bg-white w-[28rem] h-full shadow-lg p-8 overflow-y-auto fixed right-0 transform transition-transform duration-300 ${
+                isModalVisible ? "translate-x-0" : "translate-x-full"
+              }`}
+            >
+              <button
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
+                onClick={closeModal}
+              >
+                &times;
+              </button>
+
+              <div className="space-y-8">
+                <div className="text-center mb-6">
+                  <div className="mx-auto rounded-full flex items-center justify-center">
+                    {renderStatusIcon()}
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800 mt-4">
+                    {selectedTransaction.amount}
+                  </h3>
+                  {renderStatusMessage()}
+                </div>
+
+                <div className="mt-6">
+                  <div className="grid grid-cols-2 gap-y-4 text-gray-700">
+                    <p className="text-gray-400">Transaction ID:</p>
+                    <p>#{selectedTransaction.transactionId}</p>
+                    <p className="text-gray-400">Channel:</p>
+                    <p>
+                      {selectedTransaction.transactionType ||
+                        selectedTransaction.channel}
+                    </p>
+                    <p className="text-gray-400">Purpose:</p>
+                    <p>{selectedTransaction.purpose}</p>
+                    <p className="text-gray-400">Origin:</p>
+                    <p>{selectedTransaction.origin}</p>
+                    <p className="text-gray-400">Destination:</p>
+                    <p>{selectedTransaction.receiverName || "Kenya"}</p>
+                    <p className="text-gray-400">Reference Code:</p>
+                    <p>{selectedTransaction.transactionReference}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="grid grid-cols-2 gap-y-4 text-gray-700 border border-dotted py-2 px-2 border-gray-300">
+                    <p className="text-gray-400">Exchange Rate:</p>
+                    <p>KES {selectedTransaction.exchangeRate}</p>
+                    <p className="text-gray-400">Transaction Fee:</p>
+                    <p>0.00</p>
+                  </div>
+                </div>
+
+                <div className="mt-8 border-t pt-4 text-center">
+                  <h4 className="text-lg font-bold text-gray-800 mb-4">
+                    Sender
+                  </h4>
+                  <div className="flex flex-col items-center space-y-4">
+                    <div>
+                      <p className="text-gray-700 font-semibold">
+                        {selectedTransaction.senderName ||
+                          selectedTransaction.customer}
+                      </p>
+                      <p className="text-gray-500 text-lg">
+                        {selectedTransaction.senderPhone}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedTransaction.status === "Successful" && (
+                  <div className="mt-8 text-center">
+                    <button
+                      className="flex items-center justify-center gap-2 text-yellow-500 font-semibold hover:text-yellow-600 mx-auto"
+                      onClick={handleDownloadReceipt}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      Download Receipt
+                    </button>
+                  </div>
+                )}
+
+                {/* Hidden receipt for PDF generation */}
+                {selectedTransaction.status === "Successful" && (
+                  <div
+                    id="receipt"
+                    style={{
+                      opacity: 0,
+                      position: "absolute",
+                      pointerEvents: "none",
+                    }}
+                    className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-lg text-gray-700"
+                  >
+                    {selectedTransaction.status === "Successful" && (
+                      <div
+                        id="receipt"
+                        style={{
+                          opacity: 0,
+                          position: "absolute",
+                          pointerEvents: "none",
+                        }}
+                        className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-lg text-gray-700"
+                      >
+                        <div className="text-center">
+                          <img
+                            src="/logoimage.png"
+                            className="w-8 h-8 mx-auto mt-1"
+                            alt="Company Logo"
+                          />
+                        </div>
+                        <h2 className="text-2xl font-bold text-black text-center mt-2">
+                          {selectedTransaction.amount}
+                        </h2>
+                        <p className="text-gray-500 text-center">
+                          Successfully sent to{" "}
+                          <span className="font-semibold text-black">
+                            {selectedTransaction.receiverName || "Promitto LTD"}
+                          </span>
+                        </p>
+                        <p className="text-gray-400 text-center">
+                          on{" "}
+                          <span className="font-semibold text-black">
+                            {new Date(
+                              selectedTransaction.date
+                            ).toLocaleString()}
+                          </span>
+                        </p>
+
+                        <div className="bg-gray-100 p-4 rounded-lg mt-3">
+                          <h3 className="font-semibold text-black">Receiver</h3>
+                          <div className="mt-4 text-sm">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">
+                                Transaction ID
+                              </span>
+                              <span className="text-black">
+                                #{selectedTransaction.transactionId}
+                              </span>
+                            </div>
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">
+                                Transaction Reference
+                              </span>
+                              <span className="text-black">
+                                #{selectedTransaction.transactionReference}
+                              </span>
+                            </div>
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">Channel</span>
+                              <span>
+                                {selectedTransaction.transactionType ||
+                                  selectedTransaction.channel}
+                              </span>
+                            </div>
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">
+                                Purpose of payment
+                              </span>
+                              <span>{selectedTransaction.purpose}</span>
+                            </div>
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">
+                                Payment Method
+                              </span>
+                              <span>
+                                {selectedTransaction.transactionType
+                                  ?.toLowerCase()
+                                  .includes("paybill")
+                                  ? "PAYBILL"
+                                  : selectedTransaction.transactionType
+                                      ?.toLowerCase()
+                                      .includes("bank")
+                                  ? "BANK"
+                                  : selectedTransaction.transactionType ||
+                                    selectedTransaction.channel ||
+                                    "Unknown"}
+                              </span>
+                            </div>
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">Origin</span>
+                              <span>{selectedTransaction.origin}</span>
+                            </div>
+                            <div className="border-t border-gray-300 my-2"></div>
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">
+                                Transaction Fee
+                              </span>
+                              <span>0.00</span>
+                            </div>
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">
+                                Exchange Rate
+                              </span>
+                              <span>{selectedTransaction.exchangeRate}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-100 p-4 rounded-lg mt-3">
+                          <h3 className="font-semibold text-black">Sender</h3>
+                          <div className="mt-1 text-sm">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">Sender Name</span>
+                              <span className="text-black">
+                                {selectedTransaction.senderName ||
+                                  selectedTransaction.customer}
+                              </span>
+                            </div>
+                            <div className="flex justify-between mb-1">
+                              <span className="text-gray-500">
+                                Phone Number
+                              </span>
+                              <span>{selectedTransaction.senderPhone}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-center text-sm mt-2">
+                          <p className="font-semibold">
+                            Thank you for using Tuma!
+                          </p>
+                          <p className="text-gray-500 italic">
+                            For inquiries or assistance, contact us:
+                          </p>
+                          <p className="text-gray-500">support@tuma.com</p>
+                          <p className="text-gray-500">+447-778-024-995</p>
+                          <a
+                            href="https://tuma.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <p className="text-blue-500">tuma.com</p>
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         <Footer />
       </main>
     </div>

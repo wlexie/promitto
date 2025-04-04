@@ -27,16 +27,14 @@ const Table: FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          "https://api.tuma-app.com/api/transfer/partner-transactions?page=1&size=5"
-        );
-        const data = await response.json();
-
+    setLoading(true);
+    fetch(
+      "https://api.tuma-app.com/api/transfer/partner-transactions?page=1&size=5"
+    )
+      .then((response) => response.json())
+      .then((data) => {
         const mappedTransactions = data.map((item: any) => ({
-          avatar: "/avatar.png",
+          avatar: "/avatar.png", // Default avatar
           id: item.transactionId,
           customer: item.senderName,
           amount: `KES ${item.recipientAmount.toLocaleString()}`,
@@ -50,23 +48,13 @@ const Table: FC = () => {
           exchangeRate: item.exchangeRate,
           transactionReference: item.transactionReference,
         }));
-
         setTransactions(mappedTransactions);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      } finally {
         setLoading(false);
-      }
-    };
-
-    // Fetch immediately on mount
-    fetchTransactions();
-
-    // Poll every 10 seconds (adjust interval as needed)
-    const intervalId = setInterval(fetchTransactions, 20_000);
-
-    // Cleanup interval on unmount
-    return () => clearInterval(intervalId);
+      })
+      .catch((error) => {
+        console.error("Error fetching transactions:", error);
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
