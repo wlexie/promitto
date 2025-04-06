@@ -66,6 +66,47 @@ export default function AllTransactionsPage() {
 
   const rowsPerPage = 12;
 
+  // Format date as DD/MM/YYYY
+  const formatDate = (dateString: string | Date | undefined): string => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  // Format time in 24-hour format (EAT - UTC+3)
+  const formatTimeEAT = (dateString: string | Date | undefined): string => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    // Convert to East Africa Time (UTC+3)
+    date.setHours(date.getHours() + 3);
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
+  // Format date and time for table display
+  const formatDateTimeForTable = (
+    dateString: string | Date | undefined
+  ): string => {
+    if (!dateString) return "N/A";
+    return `${formatDate(dateString)} ${formatTimeEAT(dateString)}`;
+  };
+
+  const formatChannelName = (channel: string): string => {
+    if (!channel) return "Unknown";
+    switch (channel.toUpperCase()) {
+      case "CARD_TO_BANK":
+        return "Bank";
+      case "CARD_TO_PAYBILL":
+        return "M-PESA";
+      default:
+        return channel;
+    }
+  };
+
   // Fetch transactions from API
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -93,9 +134,10 @@ export default function AllTransactionsPage() {
             : "KES 0",
           origin: item.origin || "UK",
           destination: item.receiverName || "Unknown",
-          channel: item.transactionType || item.channel || "Unknown",
+          channel: formatChannelName(item.channel) || "Unknown",
           status: item.status === "SUCCESS" ? "Successful" : "Failed",
-          date: item.date ? new Date(item.date).toISOString() : "Unknown date",
+          date: item.date ? formatDateTimeForTable(item.date) : "N/A",
+          rawDate: item.date || new Date().toISOString(), // Keep original date for filtering
           purpose: item.purpose || "Transfer",
           senderPhone: item.senderPhone || "N/A",
           exchangeRate: item.exchangeRate || 0,
@@ -194,11 +236,11 @@ export default function AllTransactionsPage() {
       fileName += `_from_${start}_to_${end}`;
     }
 
-    // Format data for export
-    const formatDateTime = (dateString: string): string => {
-      if (dateString === "Unknown date") return dateString;
-      const date = new Date(dateString);
-      return date.toLocaleString();
+    const formatDateTimeForExport = (
+      dateString: string | undefined
+    ): string => {
+      if (!dateString) return "N/A";
+      return `${formatDate(dateString)} ${formatTimeEAT(dateString)}`;
     };
 
     if (fileType === "excel") {
@@ -211,7 +253,7 @@ export default function AllTransactionsPage() {
         Destination: t.receiverName,
         Channel: t.channel,
         Status: t.status,
-        Date: formatDateTime(t.date),
+        Date: formatDateTimeForExport(t.date),
         Purpose: t.purpose,
         "Sender Phone": t.senderPhone,
         "Exchange Rate": t.exchangeRate,
@@ -250,7 +292,7 @@ export default function AllTransactionsPage() {
         t.receiverName,
         t.channel,
         t.status,
-        formatDateTime(t.date),
+        formatDateTimeForExport(t.date),
         t.purpose,
         t.senderPhone,
         t.exchangeRate,
@@ -391,9 +433,21 @@ export default function AllTransactionsPage() {
     }
   };
 
-  // Render status message for modal
   const renderStatusMessage = () => {
-    if (selectedTransaction?.status === "Successful") {
+    if (!selectedTransaction) return null;
+
+    const dateDisplay = selectedTransaction.date ? (
+      <>
+        <p className="text-md text-gray-400 mt-1">
+          on{" "}
+          <span className="text-black font-semibold">
+            {selectedTransaction.date}
+          </span>
+        </p>
+      </>
+    ) : null;
+
+    if (selectedTransaction.status === "Successful") {
       return (
         <>
           <p className="text-gray-500 mt-1">
@@ -402,12 +456,7 @@ export default function AllTransactionsPage() {
               {selectedTransaction.receiverName || "Promitto LTD"}
             </span>
           </p>
-          <p className="text-md text-gray-400 mt-1">
-            on{" "}
-            <span className="text-black font-semibold">
-              {selectedTransaction.date}
-            </span>
-          </p>
+          {dateDisplay}
         </>
       );
     } else {
@@ -416,15 +465,10 @@ export default function AllTransactionsPage() {
           <p className="text-gray-500 mt-1">
             Transaction failed to{" "}
             <span className="text-black font-semibold text-md">
-              {selectedTransaction?.receiverName || "Promitto LTD"}
+              {selectedTransaction.receiverName || "Promitto LTD"}
             </span>
           </p>
-          <p className="text-md text-gray-400 mt-1">
-            on{" "}
-            <span className="text-black font-semibold">
-              {selectedTransaction?.date}
-            </span>
-          </p>
+          {dateDisplay}
         </>
       );
     }
@@ -593,7 +637,7 @@ export default function AllTransactionsPage() {
                 <th className="py-3 px-4">Origin</th>
                 <th className="py-3 px-4">Channel</th>
                 <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Date</th>
+                <th className="py-3 px-4">Date & Time</th>
                 <th className="py-3 px-4"></th>
               </tr>
             </thead>
@@ -639,9 +683,7 @@ export default function AllTransactionsPage() {
                           {transaction.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        {new Date(transaction.date).toLocaleString()}
-                      </td>
+                      <td className="py-3 px-4">{transaction.date}</td>
                       <td className="py-3 px-4 text-right">
                         <ArrowRight className="h-5 w-5 text-gray-500" />
                       </td>
@@ -822,7 +864,7 @@ export default function AllTransactionsPage() {
                 )}
 
                 {/* Hidden receipt for PDF generation */}
-                {selectedTransaction.status === "Successful" && (
+                {selectedTransaction?.status === "Successful" && (
                   <div
                     id="receipt"
                     style={{
@@ -832,149 +874,114 @@ export default function AllTransactionsPage() {
                     }}
                     className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-lg text-gray-700"
                   >
-                    {selectedTransaction.status === "Successful" && (
-                      <div
-                        id="receipt"
-                        style={{
-                          opacity: 0,
-                          position: "absolute",
-                          pointerEvents: "none",
-                        }}
-                        className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-lg text-gray-700"
-                      >
-                        <div className="text-center">
-                          <img
-                            src="/logoimage.png"
-                            className="w-8 h-8 mx-auto mt-1"
-                            alt="Company Logo"
-                          />
-                        </div>
-                        <h2 className="text-2xl font-bold text-black text-center mt-2">
-                          {selectedTransaction.amount}
-                        </h2>
-                        <p className="text-gray-500 text-center">
-                          Successfully sent to{" "}
-                          <span className="font-semibold text-black">
-                            {selectedTransaction.receiverName || "Promitto LTD"}
+                    <div className="text-center">
+                      <img
+                        src="/logoimage.png"
+                        className="w-8 h-8 mx-auto mt-1"
+                        alt="Company Logo"
+                      />
+                    </div>
+                    <h2 className="text-2xl font-bold text-black text-center mt-2">
+                      {selectedTransaction.amount}
+                    </h2>
+                    <p className="text-gray-500 text-center">
+                      Successfully sent to{" "}
+                      <span className="font-semibold text-black">
+                        {selectedTransaction.receiverName || "Promitto LTD"}
+                      </span>
+                    </p>
+                    <p className="text-gray-400 text-center">
+                      on{" "}
+                      <span className="font-semibold text-black">
+                        {selectedTransaction.date}
+                      </span>
+                    </p>
+
+                    <div className="bg-gray-100 p-4 rounded-lg mt-3">
+                      <h3 className="font-semibold text-black">Receiver</h3>
+                      <div className="mt-4 text-sm">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Transaction ID</span>
+                          <span className="text-black">
+                            {selectedTransaction.transactionId}
                           </span>
-                        </p>
-                        <p className="text-gray-400 text-center">
-                          on{" "}
-                          <span className="font-semibold text-black">
-                            {new Date(
-                              selectedTransaction.date
-                            ).toLocaleString()}
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">
+                            Transaction Reference
                           </span>
-                        </p>
-
-                        <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                          <h3 className="font-semibold text-black">Receiver</h3>
-                          <div className="mt-4 text-sm">
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">
-                                Transaction ID
-                              </span>
-                              <span className="text-black">
-                                #{selectedTransaction.transactionId}
-                              </span>
-                            </div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">
-                                Transaction Reference
-                              </span>
-                              <span className="text-black">
-                                #{selectedTransaction.transactionReference}
-                              </span>
-                            </div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">Channel</span>
-                              <span>
-                                {selectedTransaction.transactionType ||
-                                  selectedTransaction.channel}
-                              </span>
-                            </div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">
-                                Purpose of payment
-                              </span>
-                              <span>{selectedTransaction.purpose}</span>
-                            </div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">
-                                Payment Method
-                              </span>
-                              <span>
-                                {selectedTransaction.transactionType
-                                  ?.toLowerCase()
-                                  .includes("paybill")
-                                  ? "PAYBILL"
-                                  : selectedTransaction.transactionType
-                                      ?.toLowerCase()
-                                      .includes("bank")
-                                  ? "BANK"
-                                  : selectedTransaction.transactionType ||
-                                    selectedTransaction.channel ||
-                                    "Unknown"}
-                              </span>
-                            </div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">Origin</span>
-                              <span>{selectedTransaction.origin}</span>
-                            </div>
-                            <div className="border-t border-gray-300 my-2"></div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">
-                                Transaction Fee
-                              </span>
-                              <span>0.00</span>
-                            </div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">
-                                Exchange Rate
-                              </span>
-                              <span>{selectedTransaction.exchangeRate}</span>
-                            </div>
-                          </div>
+                          <span className="text-black">
+                            {selectedTransaction.transactionReference}
+                          </span>
                         </div>
-
-                        <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                          <h3 className="font-semibold text-black">Sender</h3>
-                          <div className="mt-1 text-sm">
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">Sender Name</span>
-                              <span className="text-black">
-                                {selectedTransaction.senderName ||
-                                  selectedTransaction.customer}
-                              </span>
-                            </div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-500">
-                                Phone Number
-                              </span>
-                              <span>{selectedTransaction.senderPhone}</span>
-                            </div>
-                          </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Channel</span>
+                          <span>
+                            {selectedTransaction.transactionType ||
+                              selectedTransaction.channel}
+                          </span>
                         </div>
-
-                        <div className="text-center text-sm mt-2">
-                          <p className="font-semibold">
-                            Thank you for using Tuma!
-                          </p>
-                          <p className="text-gray-500 italic">
-                            For inquiries or assistance, contact us:
-                          </p>
-                          <p className="text-gray-500">support@tuma.com</p>
-                          <p className="text-gray-500">+447-778-024-995</p>
-                          <a
-                            href="https://tuma.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <p className="text-blue-500">tuma.com</p>
-                          </a>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">
+                            Purpose of payment
+                          </span>
+                          <span>{selectedTransaction.purpose}</span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Payment Method</span>
+                          <span>
+                            {selectedTransaction.transactionType ||
+                              selectedTransaction.channel}
+                          </span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Origin</span>
+                          <span>{selectedTransaction.origin}</span>
+                        </div>
+                        <div className="border-t border-gray-300 my-2"></div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Transaction Fee</span>
+                          <span>0.00</span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Exchange Rate</span>
+                          <span>{selectedTransaction.exchangeRate}</span>
                         </div>
                       </div>
-                    )}
+                    </div>
+
+                    <div className="bg-gray-100 p-4 rounded-lg mt-3">
+                      <h3 className="font-semibold text-black">Sender</h3>
+                      <div className="mt-1 text-sm">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Sender Name</span>
+                          <span className="text-black">
+                            {selectedTransaction.senderName ||
+                              selectedTransaction.customer}
+                          </span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Phone Number</span>
+                          <span>{selectedTransaction.senderPhone}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-center text-sm mt-2">
+                      <p className="font-semibold">Thank you for using Tuma!</p>
+                      <p className="text-gray-500 italic">
+                        For inquiries or assistance, contact us:
+                      </p>
+                      <p className="text-gray-500">support@tuma.com</p>
+                      <p className="text-gray-500">+447-778-024-995</p>
+                      <a
+                        href="https://tuma.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <p className="text-blue-500">tuma.com</p>
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>

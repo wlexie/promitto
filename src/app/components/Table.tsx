@@ -3,7 +3,6 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 interface Transaction {
-  avatar: string;
   id: string;
   customer: string;
   amount: string;
@@ -26,6 +25,44 @@ const Table: FC = () => {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const formatChannelName = (channel: string): string => {
+    if (!channel) return "Unknown";
+    switch (channel.toUpperCase()) {
+      case "CARD_TO_BANK":
+        return "Bank";
+      case "CARD_TO_PAYBILL":
+        return "M-PESA";
+      default:
+        return channel;
+    }
+  };
+
+  const formatDate = (dateString: string | Date | undefined): string => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatTimeEAT = (dateString: string | Date | undefined): string => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    // Convert to East Africa Time (UTC+3)
+    date.setHours(date.getHours() + 3);
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
+  const formatDateTimeForTable = (
+    dateString: string | Date | undefined
+  ): string => {
+    if (!dateString) return "N/A";
+    return `${formatDate(dateString)} ${formatTimeEAT(dateString)}`;
+  };
+
   useEffect(() => {
     setLoading(true);
     fetch(
@@ -34,15 +71,14 @@ const Table: FC = () => {
       .then((response) => response.json())
       .then((data) => {
         const mappedTransactions = data.map((item: any) => ({
-          avatar: "/avatar.png", // Default avatar
           id: item.transactionId,
           customer: item.senderName,
           amount: `KES ${item.recipientAmount.toLocaleString()}`,
           origin: "UK",
           destination: item.receiverName,
-          channel: item.transactionType,
+          channel: formatChannelName(item.transactionType),
           status: item.status === "SUCCESS" ? "Successful" : "Failed",
-          date: new Date(item.date).toLocaleString(),
+          date: formatDateTimeForTable(item.date),
           purpose: "Transfer",
           senderPhone: item.senderPhone,
           exchangeRate: item.exchangeRate,
@@ -237,7 +273,7 @@ const Table: FC = () => {
               <th className="px-6 py-3">Origin</th>
               <th className="px-6 py-3">Channel</th>
               <th className="px-6 py-3">Status</th>
-              <th className="px-6 py-3">Date</th>
+              <th className="px-6 py-3">Date & Time</th>
             </tr>
           </thead>
           <tbody>
@@ -255,11 +291,6 @@ const Table: FC = () => {
                   onClick={() => handleRowClick(transaction)}
                 >
                   <td className="px-6 py-4 flex items-center">
-                    <img
-                      src={transaction.avatar || "/avatar.png"}
-                      alt={`${transaction.customer}'s Avatar` || "Customer"}
-                      className="w-8 h-8 rounded-full mr-4"
-                    />
                     {transaction.customer || transaction.customer || "Unknown"}
                   </td>
                   <td className="px-6 py-4">{transaction.id || "N/A"}</td>
@@ -268,7 +299,7 @@ const Table: FC = () => {
                     {transaction.origin || "Unknown"}
                   </td>
                   <td className="px-6 py-4">
-                    {transaction.channel || "Unknown"}
+                    {formatChannelName(transaction.channel) || "Unknown"}
                   </td>
                   <td
                     className={`px-6 py-4 font-medium ${
@@ -317,7 +348,7 @@ const Table: FC = () => {
             </button>
 
             {/* Modal Content */}
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-svh">
               <div className="flex-grow overflow-y-auto">
                 <div className="mt-6 space-y-8">
                   {/* Confirmation Section */}
@@ -364,14 +395,7 @@ const Table: FC = () => {
                       <h4 className="text-md font-bold text-gray-500 mb-4 ">
                         Sender
                       </h4>
-                      {/* Avatar */}
-                      <div className="w-8 h-8 rounded-full bg-gray-100 ml-40 align-middle justify-center mb-2">
-                        <img
-                          src={selectedTransaction.avatar || "N/A"}
-                          alt="Sender Avatar"
-                          className="w-full h-full rounded-full object-cover mr-6"
-                        />
-                      </div>
+
                       <div className="flex items-center align-middle justify-center">
                         {/* Sender Info */}
                         <div>
@@ -487,7 +511,9 @@ const Table: FC = () => {
                             <span className="text-gray-500">
                               Payment Method
                             </span>
-                            <span>{selectedTransaction.channel}</span>
+                            <span>
+                              {formatChannelName(selectedTransaction.channel)}
+                            </span>
                           </div>
                           <div className="flex justify-between mb-1">
                             <span className="text-gray-500">Origin</span>

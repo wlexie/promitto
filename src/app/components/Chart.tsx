@@ -1,77 +1,117 @@
 "use client";
 
 import { Bar, BarChart, XAxis, YAxis, Tooltip, Label } from "recharts";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 
-const chartData = [
-  { transactionID: "TRX1004", amount: 370000 },
-  { transactionID: "TRX1001", amount: 260000 },
-  { transactionID: "TRX1009", amount: 225000 },
-  { transactionID: "TRX1006", amount: 170000 },
-  { transactionID: "TRX10012", amount: 120000 },
+// Define the expected API response type for top transactions
+type ApiResponse = {
+  topTransactions: {
+    transactionReference: string;
+    senderAmount: number;
+    receiverAmount: number;
+    createdAt: string;
+  }[];
+  // Other fields not used in this component
+  [key: string]: any;
+};
+
+// Default data in case API fails or while loading
+const defaultChartData = [
+  { transactionID: "TRX0001", amount: 0 },
+  { transactionID: "TRX0002", amount: 0 },
+  { transactionID: "TRX0003", amount: 0 },
+  { transactionID: "TRX0004", amount: 0 },
+  { transactionID: "TRX0005", amount: 0 },
 ];
 
 function Chart() {
+  const [chartData, setChartData] = useState(defaultChartData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://api.tuma-app.com/api/transfer/get-partner-analytics"
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: ApiResponse = await response.json();
+
+        // Transform the API data to match the chart format
+        const transformedData = data.topTransactions
+          .slice(0, 5) // Take top 5 transactions
+          .map((transaction, index) => ({
+            transactionID: transaction.transactionReference,
+            amount: transaction.receiverAmount,
+            // Include additional data that might be useful for tooltip
+            senderAmount: transaction.senderAmount,
+            date: new Date(transaction.createdAt).toLocaleDateString(),
+          }));
+
+        // If we have fewer than 5 transactions, fill the rest with defaults
+        while (transformedData.length < 5) {
+          transformedData.push({
+            transactionID: `TRX${1000 + transformedData.length + 1}`,
+            amount: 0,
+            senderAmount: 0,
+            date: "",
+          });
+        }
+
+        setChartData(transformedData);
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
+        // Keep the default data on error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <Card className="bg-white shadow-md p-4 rounded-md">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">
-          Top 5 Transactions
-        </CardTitle>
+    <Card className="bg-white">
+      <CardHeader className="items-center pb-2">
+        <CardTitle className="text-xl">Top 5 Transactions</CardTitle>
       </CardHeader>
-      <CardContent>
-        <BarChart
-          width={390}
-          height={300}
-          data={chartData}
-          layout="vertical"
-          margin={{ top: 20, right: 90, left: 2, bottom: 20 }}
-        >
-          {/* X-Axis */}
-          <XAxis
-            type="number"
-            tick={{
-              fill: "#828282",
-              fontSize: 12,
-            }}
-            tickFormatter={(value: number) => `${value / 1000}K`}
-            axisLine={false}
-            tickLine={false}
+      <CardContent className="pt-0">
+        <div className="h-[300px]">
+          <BarChart
+            width={400}
+            height={300}
+            data={chartData}
+            layout="vertical"
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
           >
-            <Label
-              value="Transactions in KES"
-              position="bottom"
-              offset={10}
-              style={{
-                textAnchor: "middle",
-                fontSize: "14px",
-                fill: "#333",
-              }}
+            <XAxis
+              type="number"
+              tickFormatter={(value) => `${(value / 1000).toFixed(2)}K`}
+              axisLine={false}
+              tickLine={false}
             />
-          </XAxis>
-
-          {/* Y-Axis */}
-          <YAxis
-            dataKey="transactionID"
-            type="category"
-            tick={{
-              fill: "#333",
-              fontSize: 12,
-            }}
-            tickLine={false}
-            axisLine={false}
-          ></YAxis>
-
-          <Tooltip
-            cursor={{ fill: "rgba(255, 191, 0, 0.2)" }}
-            formatter={(value: number) => [
-              `KES ${value.toLocaleString()}`,
-              "Amount",
-            ]}
-          />
-          <Bar dataKey="amount" fill="#FFBF00" radius={[0, 10, 10, 0]} />
-        </BarChart>
+            <YAxis
+              dataKey="transactionID"
+              type="category"
+              width={80}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip
+              formatter={(value) => [`KES ${value.toLocaleString()}`, "Amount"]}
+            />
+            <Bar dataKey="amount" fill="#FFBF00" radius={[0, 4, 4, 0]} />
+          </BarChart>
+        </div>
       </CardContent>
     </Card>
   );
