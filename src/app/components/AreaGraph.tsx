@@ -103,7 +103,7 @@ function AreaGraph() {
       <CardHeader className="items-center pb-2">
         <CardTitle className="text-xl">Transaction Volume</CardTitle>
         <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-md">
-          Daily
+          Weekly
         </div>
       </CardHeader>
       <CardContent className="pt-0">

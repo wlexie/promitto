@@ -30,6 +30,26 @@ const COLORS = {
 // Default data in case API fails or while loading
 const defaultChartData = [{ name: "Loading...", value: 100, fill: "#e2e8f0" }];
 
+// Custom Tooltip component for vertical layout
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-2 border border-gray-200 rounded shadow-sm">
+        {payload.map((entry: any, index: number) => (
+          <div
+            key={`tooltip-${index}`}
+            className="flex flex-col mb-1 last:mb-0"
+          >
+            <span className="font-medium">{entry.name}</span>
+            <span>KES {entry.value.toLocaleString()}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 function PieGraph() {
   const [chartData, setChartData] = useState(defaultChartData);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,7 +110,7 @@ function PieGraph() {
   return (
     <Card className="bg-white">
       <CardHeader className="items-center pb-2">
-        <CardTitle className="text-xl">Revenue Breakdown</CardTitle>
+        <CardTitle className="text-xl">Amount by Channel</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="h-[250px]">
@@ -111,7 +131,7 @@ function PieGraph() {
                   <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [`KES ${value}`, "Amount"]} />
+              <Tooltip content={<CustomTooltip />} />
             </PieChart>
           </ResponsiveContainer>
         </div>

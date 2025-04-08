@@ -88,38 +88,36 @@ function Chart() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={chartData}
-                layout="vertical"
+                layout="horizontal" // Changed from vertical to horizontal
                 margin={{ top: 20, right: 30, left: 40, bottom: 20 }}
                 barCategoryGap={10}
               >
                 <XAxis
-                  type="number"
-                  tickFormatter={(value) => `${(value / 1000).toFixed(2)}K`}
-                  axisLine={false}
+                  dataKey="transactionID"
+                  type="category"
                   tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 10 }}
                 >
                   <Label
-                    value="Amount in KES"
+                    value="Reference Code"
                     position="insideBottom"
                     offset={-10}
                     style={{ textAnchor: "middle", fontSize: "12px" }}
                   />
                 </XAxis>
                 <YAxis
-                  dataKey="transactionID"
-                  type="category"
-                  width={120}
-                  tickLine={false}
+                  type="number" // Now showing amounts
+                  tickFormatter={(value) => `${(value / 1000).toFixed(2)}K`}
                   axisLine={false}
-                  tick={{ fontSize: 10 }}
-                  domain={[0, 4]} // Maintain space for 5 bars
+                  tickLine={false}
                 >
                   <Label
-                    value="Reference Code"
+                    value="Amount in KES"
                     angle={-90}
                     position="left"
                     style={{ textAnchor: "middle", fontSize: "12px" }}
-                    offset={-15}
+                    offset={5}
                   />
                 </YAxis>
                 <Tooltip
@@ -132,7 +130,7 @@ function Chart() {
                 <Bar
                   dataKey="amount"
                   fill="#FFBF00"
-                  radius={[0, 4, 4, 0]}
+                  radius={[4, 4, 0, 0]} // Adjusted radius for horizontal bars
                   barSize={20}
                 />
               </BarChart>
