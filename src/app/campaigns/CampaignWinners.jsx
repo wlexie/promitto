@@ -9,7 +9,7 @@ const CampaignWinners = ({ activeTab, setActiveTab }) => {
   return (
     <div className="h-screen  text-white p-8">
       <div className="container mx-auto">
-        <h1 className="text-[23px] text-center font-bold mb-8">Campaign Winners</h1>
+        <h1 className="text-[23px] text-left font-bold mb-8">Campaign Winners</h1>
         
         {/* Tabs Navigation */}
         <div className="flex border-b text-[17px] border-gray-600 mb-6">
