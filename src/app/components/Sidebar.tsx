@@ -28,7 +28,8 @@ const Sidebar: FC = () => {
               : "text-secondary hover:bg-gray-100"
           }`}
         >
-          <img src="/dashboard.png" className="w-6 h-6" /> Dashboard
+          <img src="/dashboard.png" className="w-6 h-6" />
+          Dashboard 
         </Link>
         <Link
           href="/all-transactions"
@@ -40,6 +41,17 @@ const Sidebar: FC = () => {
         >
           <img src="/event.png" className="w-6 h-6" />
           All Transactions
+        </Link>
+        <Link
+          href="/campaigns" // Adjust this href to match your campaigns route
+          className={`flex items-center gap-4 px-4 py-2 rounded-lg ${
+            pathname === "/campaigns"
+              ? "bg-white text-black"
+              : "text-secondary hover:bg-gray-100"
+          }`}
+        >
+          <img src="/campaign/bell.svg" className="w-7 h-7" />
+          Campaigns
         </Link>
       </nav>
     </div>
