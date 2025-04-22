@@ -38,6 +38,7 @@ export interface Transaction {
   recipientAmount?: number | null;
   transactionType?: string | null;
   receiverName?: string | null;
+  rawDate: Date;
 }
 
 export default function AllTransactionsPage() {
@@ -129,15 +130,13 @@ export default function AllTransactionsPage() {
         const mappedTransactions = transactionsData.map((item: any) => ({
           transactionId: item.transactionId || "N/A",
           customer: item.senderName || item.customer || "Unknown",
-          amount: item.recipientAmount
-            ? `KES ${item.recipientAmount.toLocaleString()}`
-            : "KES 0",
+          amount: item.recipientAmount,
           origin: item.origin || "UK",
           destination: item.receiverName || "Unknown",
           channel: formatChannelName(item.channel) || "Unknown",
           status: item.status === "SUCCESS" ? "Successful" : "Failed",
           date: item.date ? formatDateTimeForTable(item.date) : "N/A",
-          rawDate: item.date || new Date().toISOString(), // Keep original date for filtering
+
           purpose: item.purpose || "Transfer",
           senderPhone: item.senderPhone || "N/A",
           exchangeRate: item.exchangeRate || 0,
@@ -146,6 +145,7 @@ export default function AllTransactionsPage() {
           recipientAmount: item.recipientAmount || 0,
           transactionType: item.transactionType || "Unknown",
           receiverName: item.receiverName || "Unknown",
+          rawDate: item.date ? new Date(item.date) : new Date(),
         }));
 
         setAllTransactions(mappedTransactions);
@@ -166,6 +166,7 @@ export default function AllTransactionsPage() {
   }, [currentPage]);
 
   // Filter transactions based on search term and date range
+
   useEffect(() => {
     let filtered = allTransactions;
 
@@ -186,12 +187,14 @@ export default function AllTransactionsPage() {
     // Apply date filter if dates are selected
     if (dateRange.startDate && dateRange.endDate) {
       filtered = filtered.filter((transaction) => {
-        if (transaction.date === "Unknown date") return false;
-        const transactionDate = new Date(transaction.date);
-        return (
-          transactionDate >= dateRange.startDate! &&
-          transactionDate <= dateRange.endDate!
-        );
+        if (!transaction.rawDate) return false;
+
+        // Get time in milliseconds for comparison
+        const transactionTime = transaction.rawDate.getTime();
+        const startTime = dateRange.startDate!.getTime();
+        const endTime = dateRange.endDate!.getTime();
+
+        return transactionTime >= startTime && transactionTime <= endTime;
       });
     }
 
@@ -201,14 +204,12 @@ export default function AllTransactionsPage() {
 
   // Handle date filter changes
   const handleDateChange = (startDate: Date, endDate: Date) => {
-    setDateRange({ startDate, endDate });
+    // If you want to include the time in your filtering:
+    setDateRange({
+      startDate: new Date(startDate.setHours(0, 0, 0, 0)),
+      endDate: new Date(endDate.setHours(23, 59, 59, 999)),
+    });
     console.log("Filtering from:", startDate, "to:", endDate);
-
-    // If you need to format for display:
-    const formattedStart = startDate.toLocaleString();
-    const formattedEnd = endDate.toLocaleString();
-    console.log("Formatted range:", formattedStart, "-", formattedEnd);
-    // setShowDateFilter(false);
   };
 
   // Clear date filters

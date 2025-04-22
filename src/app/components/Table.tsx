@@ -15,6 +15,8 @@ interface Transaction {
   senderPhone: string;
   exchangeRate: number;
   transactionReference: string;
+  settlementReference: string;
+  transactionKey: string;
 }
 
 const Table: FC = () => {
@@ -73,7 +75,7 @@ const Table: FC = () => {
         const mappedTransactions = data.map((item: any) => ({
           id: item.transactionId,
           customer: item.senderName,
-          amount: `KES ${item.recipientAmount.toLocaleString()}`,
+          amount: item.recipientAmount,
           origin: "UK",
           destination: item.receiverName,
           channel: formatChannelName(item.transactionType),
@@ -83,6 +85,8 @@ const Table: FC = () => {
           senderPhone: item.senderPhone,
           exchangeRate: item.exchangeRate,
           transactionReference: item.transactionReference,
+          settlementReference: item.settlementReference,
+          transactionKey: item.transactionKey,
         }));
         setTransactions(mappedTransactions);
         setLoading(false);
