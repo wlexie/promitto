@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
-// import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Poppins, Outfit } from "next/font/google";
 import "./globals.css";
 import Sidebar from "./components/Sidebar";
-import "@fontsource/poppins";
 
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
+// Configure Poppins (primary font)
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+});
 
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+// Configure Outfit (secondary font)
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+});
 
 export const metadata: Metadata = {
   title: "Promitto Dashboard",
@@ -25,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="flex text-black">
+    <html lang="en" className={`${poppins.variable} ${outfit.variable}`}>
+      <body className="flex text-black font-poppins"> {/* Default to Poppins */}
         <main className="flex-1 bg-gray-100">{children}</main>
       </body>
     </html>
