@@ -23,21 +23,26 @@ import jsPDF from "jspdf";
 import { FaCalendarAlt, FaFileExport } from "react-icons/fa";
 
 export interface Transaction {
-  customer?: string;
-  transactionId?: string;
-  amount?: string;
-  origin?: string;
-  channel?: string;
-  status?: string;
+  transactionId: number;
+  transactionKey: string;
+  senderName: string;
+  senderEmail: string;
+  senderPhone: string;
+  receiverName: string;
+  receiverPhone: string | null;
+  senderAmount: number;
+  recipientAmount: number;
+  exchangeRate: number;
   date: string;
-  purpose?: string;
-  senderPhone?: string | null;
-  exchangeRate?: number | null;
-  transactionReference?: string | null;
-  senderName?: string | null;
-  recipientAmount?: number | null;
-  transactionType?: string | null;
-  receiverName?: string | null;
+  status: string;
+  currencyIso3a: string;
+  receiverCurrencyIso3a: string;
+  transactionType: string;
+  accountNumber: string;
+  settlementReference: string;
+  tpReference: string;
+  mpesaReference: string | null;
+  rawDate: Date;
 }
 
 export default function AllTransactionsPage() {
@@ -127,25 +132,26 @@ export default function AllTransactionsPage() {
           : data.content || [];
 
         const mappedTransactions = transactionsData.map((item: any) => ({
-          transactionId: item.transactionId || "N/A",
-          customer: item.senderName || item.customer || "Unknown",
-          amount: item.recipientAmount
-            ? `KES ${item.recipientAmount.toLocaleString()}`
-            : "KES 0",
-          origin: item.origin || "UK",
-          destination: item.receiverName || "Unknown",
-          channel: formatChannelName(item.channel) || "Unknown",
-          status: item.status === "SUCCESS" ? "Successful" : "Failed",
-          date: item.date ? formatDateTimeForTable(item.date) : "N/A",
-          rawDate: item.date || new Date().toISOString(), // Keep original date for filtering
-          purpose: item.purpose || "Transfer",
-          senderPhone: item.senderPhone || "N/A",
-          exchangeRate: item.exchangeRate || 0,
-          transactionReference: item.transactionReference || "N/A",
+          transactionId: item.transactionId || 0,
+          transactionKey: item.transactionKey || "N/A",
           senderName: item.senderName || "Unknown",
-          recipientAmount: item.recipientAmount || 0,
-          transactionType: item.transactionType || "Unknown",
+          senderEmail: item.senderEmail || "N/A",
+          senderPhone: item.senderPhone || "N/A",
           receiverName: item.receiverName || "Unknown",
+          receiverPhone: item.receiverPhone || null,
+          senderAmount: item.senderAmount || 0,
+          recipientAmount: item.recipientAmount || 0,
+          exchangeRate: item.exchangeRate || 0,
+          date: item.date ? formatDateTimeForTable(item.date) : "N/A",
+          status: item.status === "SUCCESS" ? "Successful" : "Failed",
+          currencyIso3a: item.currencyIso3a || "N/A",
+          receiverCurrencyIso3a: item.receiverCurrencyIso3a || "N/A",
+          transactionType: formatChannelName(item.transactionType) || "Unknown",
+          accountNumber: item.accountNumber || "N/A",
+          settlementReference: item.settlementReference || "N/A",
+          tpReference: item.tpReference || "N/A",
+          mpesaReference: item.mpesaReference || null,
+          rawDate: item.date ? new Date(item.date) : new Date(),
         }));
 
         setAllTransactions(mappedTransactions);
@@ -175,10 +181,10 @@ export default function AllTransactionsPage() {
       filtered = filtered.filter((transaction) => {
         return (
           transaction.transactionId?.toString().includes(query) ||
-          transaction.customer?.toLowerCase().includes(query) ||
+          transaction.senderName?.toLowerCase().includes(query) ||
           transaction.receiverName?.toLowerCase().includes(query) ||
-          transaction.amount?.toLowerCase().includes(query) ||
-          transaction.channel?.toLowerCase().includes(query)
+          transaction.senderAmount?.toString().includes(query) ||
+          transaction.transactionType?.toLowerCase().includes(query)
         );
       });
     }
@@ -186,12 +192,14 @@ export default function AllTransactionsPage() {
     // Apply date filter if dates are selected
     if (dateRange.startDate && dateRange.endDate) {
       filtered = filtered.filter((transaction) => {
-        if (transaction.date === "Unknown date") return false;
-        const transactionDate = new Date(transaction.date);
-        return (
-          transactionDate >= dateRange.startDate! &&
-          transactionDate <= dateRange.endDate!
-        );
+        if (!transaction.rawDate) return false;
+
+        // Get time in milliseconds for comparison
+        const transactionTime = transaction.rawDate.getTime();
+        const startTime = dateRange.startDate!.getTime();
+        const endTime = dateRange.endDate!.getTime();
+
+        return transactionTime >= startTime && transactionTime <= endTime;
       });
     }
 
@@ -201,14 +209,11 @@ export default function AllTransactionsPage() {
 
   // Handle date filter changes
   const handleDateChange = (startDate: Date, endDate: Date) => {
-    setDateRange({ startDate, endDate });
+    setDateRange({
+      startDate: new Date(startDate.setHours(0, 0, 0, 0)),
+      endDate: new Date(endDate.setHours(23, 59, 59, 999)),
+    });
     console.log("Filtering from:", startDate, "to:", endDate);
-
-    // If you need to format for display:
-    const formattedStart = startDate.toLocaleString();
-    const formattedEnd = endDate.toLocaleString();
-    console.log("Formatted range:", formattedStart, "-", formattedEnd);
-    // setShowDateFilter(false);
   };
 
   // Clear date filters
@@ -219,11 +224,8 @@ export default function AllTransactionsPage() {
 
   // Export data function
   const handleExport = () => {
-    // Determine which data to export
     const dataToExport =
       exportType === "all" ? allTransactions : filteredTransactions;
-
-    // Generate a filename based on the applied filters
     let fileName = "transactions";
 
     if (exportType === "filtered") {
@@ -244,68 +246,79 @@ export default function AllTransactionsPage() {
     };
 
     if (fileType === "excel") {
-      // Prepare the data for Excel export
       const exportData = dataToExport.map((t) => ({
         "Transaction ID": t.transactionId,
-        Customer: t.customer,
-        "Amount (KES)": t.amount,
-        Origin: t.origin,
-        Destination: t.receiverName,
-        Channel: t.channel,
-        Status: t.status,
-        Date: formatDateTimeForExport(t.date),
-        Purpose: t.purpose,
+        "Transaction Key": t.transactionKey,
+        "Sender Name": t.senderName,
+        "Sender Email": t.senderEmail,
         "Sender Phone": t.senderPhone,
+        "Receiver Name": t.receiverName,
+        "Sender Amount": t.senderAmount,
+        "Sender Currency": t.currencyIso3a,
+        "Recipient Amount": t.recipientAmount,
+        "Recipient Currency": t.receiverCurrencyIso3a,
         "Exchange Rate": t.exchangeRate,
-        Reference: t.transactionReference,
+        Date: formatDateTimeForExport(t.date),
+        Status: t.status,
+        "Transaction Type": t.transactionType,
+        "Account Number": t.accountNumber,
+        "Settlement Reference": t.settlementReference,
+        "TP Reference": t.tpReference,
+        "Mpesa Reference": t.mpesaReference,
       }));
 
-      // Create worksheet and workbook
       const ws = XLSX.utils.json_to_sheet(exportData);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Transactions");
-
-      // Export to Excel file
       XLSX.writeFile(wb, `${fileName}.xlsx`);
     } else {
-      // Prepare the data for CSV export
       const headers = [
         "Transaction ID",
-        "Customer",
-        "Amount (KES)",
-        "Origin",
-        "Destination",
-        "Channel",
-        "Status",
-        "Date",
-        "Purpose",
+        "Transaction Key",
+        "Sender Name",
+        "Sender Email",
         "Sender Phone",
+        "Receiver Name",
+        "Sender Amount",
+        "Sender Currency",
+        "Recipient Amount",
+        "Recipient Currency",
         "Exchange Rate",
-        "Reference",
+        "Date",
+        "Status",
+        "Transaction Type",
+        "Account Number",
+        "Settlement Reference",
+        "TP Reference",
+        "Mpesa Reference",
       ];
 
       const rows = dataToExport.map((t) => [
         t.transactionId,
-        t.customer,
-        t.amount,
-        t.origin,
-        t.receiverName,
-        t.channel,
-        t.status,
-        formatDateTimeForExport(t.date),
-        t.purpose,
+        t.transactionKey,
+        t.senderName,
+        t.senderEmail,
         t.senderPhone,
+        t.receiverName,
+        t.senderAmount,
+        t.currencyIso3a,
+        t.recipientAmount,
+        t.receiverCurrencyIso3a,
         t.exchangeRate,
-        t.transactionReference,
+        formatDateTimeForExport(t.date),
+        t.status,
+        t.transactionType,
+        t.accountNumber,
+        t.settlementReference,
+        t.tpReference,
+        t.mpesaReference,
       ]);
 
-      // Create CSV content
       const csvContent = [
         headers.join(","),
         ...rows.map((row) => row.map((field) => `"${field}"`).join(",")),
       ].join("\n");
 
-      // Create download link
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -316,7 +329,6 @@ export default function AllTransactionsPage() {
       document.body.removeChild(link);
     }
 
-    // Close modal
     setIsExportModalVisible(false);
   };
 
@@ -453,7 +465,7 @@ export default function AllTransactionsPage() {
           <p className="text-gray-500 mt-1">
             Successfully sent to{" "}
             <span className="text-black font-semibold text-md">
-              {selectedTransaction.receiverName || "Promitto LTD"}
+              {selectedTransaction.receiverName}
             </span>
           </p>
           {dateDisplay}
@@ -465,7 +477,7 @@ export default function AllTransactionsPage() {
           <p className="text-gray-500 mt-1">
             Transaction failed to{" "}
             <span className="text-black font-semibold text-md">
-              {selectedTransaction.receiverName || "Promitto LTD"}
+              {selectedTransaction.receiverName}
             </span>
           </p>
           {dateDisplay}
@@ -633,8 +645,10 @@ export default function AllTransactionsPage() {
               <tr className="text-gray-400 font-light text-sm">
                 <th className="py-3 px-4">Customer</th>
                 <th className="py-3 px-4">Transaction ID</th>
-                <th className="py-3 px-4">Amount (KES)</th>
-                <th className="py-3 px-4">Origin</th>
+                <th className="py-3 px-4">Sender Amount</th>
+                <th className="py-3 px-4">Sender Currency</th>
+                <th className="py-3 px-4">Recipient Amount</th>
+                <th className="py-3 px-4">Recipient Currency</th>
                 <th className="py-3 px-4">Channel</th>
                 <th className="py-3 px-4">Status</th>
                 <th className="py-3 px-4">Date & Time</th>
@@ -645,7 +659,7 @@ export default function AllTransactionsPage() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={10}
                     className="py-6 px-4 text-center text-gray-500"
                   >
                     Loading transactions...
@@ -663,14 +677,20 @@ export default function AllTransactionsPage() {
                       className="text-gray-700 cursor-pointer text-sm hover:bg-gray-50"
                       onClick={() => handleRowClick(transaction)}
                     >
-                      <td className="py-4 px-6">
-                        {transaction.senderName || transaction.customer}
-                      </td>
+                      <td className="py-4 px-6">{transaction.senderName}</td>
                       <td className="py-3 px-4">{transaction.transactionId}</td>
-                      <td className="py-3 px-4">{transaction.amount}</td>
-                      <td className="py-3 px-4">{transaction.origin}</td>
                       <td className="py-3 px-4">
-                        {transaction.transactionType || transaction.channel}
+                        {transaction.senderAmount.toFixed(2)}
+                      </td>
+                      <td className="py-3 px-4">{transaction.currencyIso3a}</td>
+                      <td className="py-3 px-4">
+                        {transaction.recipientAmount.toFixed(2)}
+                      </td>
+                      <td className="py-3 px-4">
+                        {transaction.receiverCurrencyIso3a}
+                      </td>
+                      <td className="py-3 px-4">
+                        {transaction.transactionType}
                       </td>
                       <td className="py-3 px-4">
                         <span
@@ -692,7 +712,7 @@ export default function AllTransactionsPage() {
               ) : (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={10}
                     className="py-6 px-4 text-center text-gray-500"
                   >
                     No transactions found.
@@ -787,7 +807,8 @@ export default function AllTransactionsPage() {
                     {renderStatusIcon()}
                   </div>
                   <h3 className="text-2xl font-bold text-gray-800 mt-4">
-                    {selectedTransaction.amount}
+                    {selectedTransaction.senderAmount.toFixed(2)}{" "}
+                    {selectedTransaction.currencyIso3a}
                   </h3>
                   {renderStatusMessage()}
                 </div>
@@ -795,29 +816,37 @@ export default function AllTransactionsPage() {
                 <div className="mt-6">
                   <div className="grid grid-cols-2 gap-y-4 text-gray-700">
                     <p className="text-gray-400">Transaction ID:</p>
-                    <p>#{selectedTransaction.transactionId}</p>
+                    <p>{selectedTransaction.transactionId}</p>
+                    <p className="text-gray-400">Transaction Key:</p>
+                    <p>{selectedTransaction.transactionKey}</p>
                     <p className="text-gray-400">Channel:</p>
-                    <p>
-                      {selectedTransaction.transactionType ||
-                        selectedTransaction.channel}
-                    </p>
+                    <p>{selectedTransaction.transactionType}</p>
                     <p className="text-gray-400">Purpose:</p>
-                    <p>{selectedTransaction.purpose}</p>
-                    <p className="text-gray-400">Origin:</p>
-                    <p>{selectedTransaction.origin}</p>
-                    <p className="text-gray-400">Destination:</p>
-                    <p>{selectedTransaction.receiverName || "Kenya"}</p>
-                    <p className="text-gray-400">Reference Code:</p>
-                    <p>{selectedTransaction.transactionReference}</p>
+                    <p>Transfer</p>
+                    <p className="text-gray-400">Sender Currency:</p>
+                    <p>{selectedTransaction.currencyIso3a}</p>
+                    <p className="text-gray-400">Recipient Currency:</p>
+                    <p>{selectedTransaction.receiverCurrencyIso3a}</p>
+                    <p className="text-gray-400">Trust Payments:</p>
+                    <p>{selectedTransaction.tpReference}</p>
+                    <p className="text-gray-400">Settlement Reference:</p>
+                    <p>{selectedTransaction.settlementReference}</p>
+                    <p className="text-gray-400">Account Number:</p>
+                    <p>{selectedTransaction.accountNumber}</p>
                   </div>
                 </div>
 
                 <div>
                   <div className="grid grid-cols-2 gap-y-4 text-gray-700 border border-dotted py-2 px-2 border-gray-300">
                     <p className="text-gray-400">Exchange Rate:</p>
-                    <p>KES {selectedTransaction.exchangeRate}</p>
+                    <p>{selectedTransaction.exchangeRate.toFixed(2)}</p>
                     <p className="text-gray-400">Transaction Fee:</p>
                     <p>0.00</p>
+                    <p className="text-gray-400">Recipient Amount:</p>
+                    <p>
+                      {selectedTransaction.recipientAmount.toFixed(2)}{" "}
+                      {selectedTransaction.receiverCurrencyIso3a}
+                    </p>
                   </div>
                 </div>
 
@@ -828,12 +857,32 @@ export default function AllTransactionsPage() {
                   <div className="flex flex-col items-center space-y-4">
                     <div>
                       <p className="text-gray-700 font-semibold">
-                        {selectedTransaction.senderName ||
-                          selectedTransaction.customer}
+                        {selectedTransaction.senderName}
                       </p>
                       <p className="text-gray-500 text-lg">
                         {selectedTransaction.senderPhone}
                       </p>
+                      <p className="text-gray-500 text-sm mt-1">
+                        {selectedTransaction.senderEmail}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 border-t pt-4 text-center">
+                  <h4 className="text-lg font-bold text-gray-800 mb-4">
+                    Receiver
+                  </h4>
+                  <div className="flex flex-col items-center space-y-4">
+                    <div>
+                      <p className="text-gray-700 font-semibold">
+                        {selectedTransaction.receiverName}
+                      </p>
+                      {selectedTransaction.receiverPhone && (
+                        <p className="text-gray-500 text-lg">
+                          {selectedTransaction.receiverPhone}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -882,12 +931,13 @@ export default function AllTransactionsPage() {
                       />
                     </div>
                     <h2 className="text-2xl font-bold text-black text-center mt-2">
-                      {selectedTransaction.amount}
+                      {selectedTransaction.senderAmount.toFixed(2)}{" "}
+                      {selectedTransaction.currencyIso3a}
                     </h2>
                     <p className="text-gray-500 text-center">
                       Successfully sent to{" "}
                       <span className="font-semibold text-black">
-                        {selectedTransaction.receiverName || "Promitto LTD"}
+                        {selectedTransaction.receiverName}
                       </span>
                     </p>
                     <p className="text-gray-400 text-center">
@@ -898,7 +948,9 @@ export default function AllTransactionsPage() {
                     </p>
 
                     <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                      <h3 className="font-semibold text-black">Receiver</h3>
+                      <h3 className="font-semibold text-black">
+                        Transaction Details
+                      </h3>
                       <div className="mt-4 text-sm">
                         <div className="flex justify-between mb-1">
                           <span className="text-gray-500">Transaction ID</span>
@@ -907,36 +959,38 @@ export default function AllTransactionsPage() {
                           </span>
                         </div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">
-                            Transaction Reference
-                          </span>
+                          <span className="text-gray-500">Transaction Key</span>
                           <span className="text-black">
-                            {selectedTransaction.transactionReference}
+                            {selectedTransaction.transactionKey}
                           </span>
                         </div>
                         <div className="flex justify-between mb-1">
                           <span className="text-gray-500">Channel</span>
-                          <span>
-                            {selectedTransaction.transactionType ||
-                              selectedTransaction.channel}
-                          </span>
+                          <span>{selectedTransaction.transactionType}</span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Purpose</span>
+                          <span>Transfer</span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Sender Currency</span>
+                          <span>{selectedTransaction.currencyIso3a}</span>
                         </div>
                         <div className="flex justify-between mb-1">
                           <span className="text-gray-500">
-                            Purpose of payment
+                            Recipient Currency
                           </span>
-                          <span>{selectedTransaction.purpose}</span>
-                        </div>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Payment Method</span>
                           <span>
-                            {selectedTransaction.transactionType ||
-                              selectedTransaction.channel}
+                            {selectedTransaction.receiverCurrencyIso3a}
                           </span>
                         </div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Origin</span>
-                          <span>{selectedTransaction.origin}</span>
+                          <span className="text-gray-500">TP Reference</span>
+                          <span>{selectedTransaction.tpReference}</span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Settlement Ref</span>
+                          <span>{selectedTransaction.settlementReference}</span>
                         </div>
                         <div className="border-t border-gray-300 my-2"></div>
                         <div className="flex justify-between mb-1">
@@ -945,7 +999,18 @@ export default function AllTransactionsPage() {
                         </div>
                         <div className="flex justify-between mb-1">
                           <span className="text-gray-500">Exchange Rate</span>
-                          <span>{selectedTransaction.exchangeRate}</span>
+                          <span>
+                            {selectedTransaction.exchangeRate.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">
+                            Recipient Amount
+                          </span>
+                          <span>
+                            {selectedTransaction.recipientAmount.toFixed(2)}{" "}
+                            {selectedTransaction.receiverCurrencyIso3a}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -954,15 +1019,40 @@ export default function AllTransactionsPage() {
                       <h3 className="font-semibold text-black">Sender</h3>
                       <div className="mt-1 text-sm">
                         <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Sender Name</span>
+                          <span className="text-gray-500">Name</span>
                           <span className="text-black">
-                            {selectedTransaction.senderName ||
-                              selectedTransaction.customer}
+                            {selectedTransaction.senderName}
                           </span>
                         </div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Phone Number</span>
+                          <span className="text-gray-500">Phone</span>
                           <span>{selectedTransaction.senderPhone}</span>
+                        </div>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Email</span>
+                          <span>{selectedTransaction.senderEmail}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-100 p-4 rounded-lg mt-3">
+                      <h3 className="font-semibold text-black">Receiver</h3>
+                      <div className="mt-1 text-sm">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Name</span>
+                          <span className="text-black">
+                            {selectedTransaction.receiverName}
+                          </span>
+                        </div>
+                        {selectedTransaction.receiverPhone && (
+                          <div className="flex justify-between mb-1">
+                            <span className="text-gray-500">Phone</span>
+                            <span>{selectedTransaction.receiverPhone}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between mb-1">
+                          <span className="text-gray-500">Account Number</span>
+                          <span>{selectedTransaction.accountNumber}</span>
                         </div>
                       </div>
                     </div>
