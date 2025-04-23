@@ -106,7 +106,6 @@
             </span>
           </div>
     
-          {/* Stats Grid Section */}
           <div className="grid md:grid-cols-[1fr_auto_1fr] p-6 py-3 gap-6 rounded-lg border border-gray-600 mb-6">
             {/* Left Column */}
             <div className="flex flex-col justify-center">
@@ -117,15 +116,14 @@
             {/* Vertical Divider */}
             <div className="w-px bg-gray-600 h-full my-2"></div>
     
-            {/* Right Column */}
             <div className="flex flex-col font-outfit justify-center space-y-2">
               <div className=" items-center gap-3">
               
-                <span className="text-[16px] font-[400] text-white">
+                <span className="text-[16px] font-[400] text-gray-400">
                5 winners to rexeive     
                
                </span>
-               <p className="text-[16px] font-[400] text-white">KES 250000</p>
+               <p className="text-[16px] font-[400] mt-2 text-gray-400">KES 250000</p>
               </div>
     
              

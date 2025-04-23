@@ -4,7 +4,7 @@
   const HomeDepositsWinners = () => {
     const [selectedWeek, setSelectedWeek] = useState(null);
     
-    // Hardcoded data for weeks and winners with phone numbers
+    // Hardcoded data
     const weeksData = [
       {
         week: 1,
@@ -123,7 +123,7 @@
                5 winners to receive     
                
                </span>
-               <p className="text-[16px] font-[400] mt-3 text-gray-400">KES 250000</p>
+               <p className="text-[16px] font-[400] mt-2 text-gray-400">KES 250000</p>
               </div>
     
              

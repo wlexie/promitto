@@ -1,4 +1,3 @@
-// app/CampaignWinners.js
 "use client"
 
 import RegistrationWinners from './RegistrationWinners';
