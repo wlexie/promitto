@@ -3,11 +3,10 @@ import { useState } from "react";
 
 const RegistrationWinners = () => {
   const [selectedWeek, setSelectedWeek] = useState(null);
-  
-  // Hardcoded data for weeks and winners with phone numbers
+
   const weeksData = [
     {
-      week: 1,
+      Draw: 1,
       winners: [
         { name: "John Doe", phone: "+254712345678" },
         { name: "Jane Smith", phone: "+254723456789" },
@@ -15,7 +14,7 @@ const RegistrationWinners = () => {
       ]
     },
     {
-      week: 2,
+      Draw: 2,
       winners: [
         { name: "Sarah Williams", phone: "+254745678901" },
         { name: "David Brown", phone: "+254756789012" },
@@ -23,7 +22,7 @@ const RegistrationWinners = () => {
       ]
     },
     {
-      week: 3,
+      Draw: 3,
       winners: [
         { name: "Winner One", phone: "+254700000001" },
         { name: "Winner Two", phone: "+254700000002" },
@@ -31,7 +30,7 @@ const RegistrationWinners = () => {
       ]
     },
     {
-      week: 4,
+      Draw: 4,
       winners: [
         { name: "Winner One", phone: "+254700000004" },
         { name: "Winner Two", phone: "+254700000005" },
@@ -39,7 +38,7 @@ const RegistrationWinners = () => {
       ]
     },
     {
-      week: 5,
+      Draw: 5,
       winners: [
         { name: "Winner One", phone: "+254700000007" },
         { name: "Winner Two", phone: "+254700000008" },
@@ -47,7 +46,7 @@ const RegistrationWinners = () => {
       ]
     },
     {
-      week: 6,
+      Draw: 6,
       winners: [
         { name: "Winner One", phone: "+254700000010" },
         { name: "Winner Two", phone: "+254700000011" },
@@ -55,7 +54,7 @@ const RegistrationWinners = () => {
       ]
     },
     {
-      week: 7,
+      Draw: 7,
       winners: [
         { name: "Winner One", phone: "+254700000013" },
         { name: "Winner Two", phone: "+254700000014" },
@@ -63,7 +62,7 @@ const RegistrationWinners = () => {
       ]
     },
     {
-      week: 8,
+      Draw: 8,
       winners: [
         { name: "Winner One", phone: "+254700000016" },
         { name: "Winner Two", phone: "+254700000017" },
@@ -71,7 +70,7 @@ const RegistrationWinners = () => {
       ]
     },
     {
-      week: 9,
+      Draw: 9,
       winners: [
         { name: "Winner One", phone: "+254700000019" },
         { name: "Winner Two", phone: "+254700000020" },
@@ -79,7 +78,7 @@ const RegistrationWinners = () => {
       ]
     },
     {
-      week: 10,
+      Draw: 10,
       winners: [
         { name: "Winner One", phone: "+254700000022" },
         { name: "Winner Two", phone: "+254700000023" },
@@ -99,14 +98,13 @@ const RegistrationWinners = () => {
           height={16}
           className="inline-block" 
         />
-        <span className="text-white font-outfit text-[16px]">
+        <span className="text-gray-300 font-outfit text-[16px]">
           7 Apr 2025, 10:00am - 7 Apr 2025, 10:00am
         </span>
       </div>
 
       {/* Stats Grid Section */}
       <div className="grid md:grid-cols-[1fr_auto_1fr] p-6 py-3 gap-6 rounded-lg border border-gray-600 mb-6">
-        {/* Left Column */}
         <div className="flex flex-col justify-center">
           <span className="text-2xl font-bold text-[#F1B80C] mb-2">67</span>
           <span className="text-gray-400 font-outfit text-lg">Total Participants</span>
@@ -168,7 +166,7 @@ const RegistrationWinners = () => {
                     : "border-gray-600"
                 }`}
               >
-                <span className="text-white font-outfit">Week {weekData.week}</span>
+                <span className="text-white text-[16px] font-outfit">Draw {weekData.Draw}</span>
                 <svg
                   className={`w-4 h-4 text-white transition-transform duration-200 ${
                     selectedWeek === weekData.week ? "transform rotate-180" : ""
@@ -187,40 +185,44 @@ const RegistrationWinners = () => {
                 </svg>
               </button>
               
-              {/* Winners for this week - shown when selected */}
-              {selectedWeek === weekData.week && (
-                <div className="mt-2 p-4 rounded-lg border border-gray-600 bg-gray-800">
-                  <h4 className="text-[#F1B80C] font-outfit text-lg mb-3">
-                    Week {weekData.week} Winners
-                  </h4>
-                  <div className="space-y-3">
-                    {weekData.winners.map((winner, index) => (
-                      <div key={index} className="flex items-start gap-3">
-                        <span className="text-[#F1B80C] font-outfit min-w-[20px]">{index + 1}.</span>
-                        <div className="flex-1">
-                          <div className="text-white font-outfit">{winner.name}</div>
-                          <div className="text-gray-400 font-outfit text-sm">{winner.phone}</div>
-                        </div>
-                        <Image 
-                          src="/campaign/person.svg" 
-                          alt="Winner icon"
-                          width={16}
-                          height={16}
-                          className="ml-auto"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            {/* Winners for this week */}
+{selectedWeek === weekData.week && (
+  <div className="mt-2 p-4 rounded-lg border border-gray-600 bg-gray-800">
+    <h4 className="text-[#F1B80C] font-outfit text-[15px] mb-3">
+      Draw {weekData.Draw} Winners
+    </h4>
+    <div className="space-y-3">
+      {weekData.winners.map((winner, index) => (
+        <div key={index} className="flex items-start gap-3">
+          <span className="text-[#F1B80C] font-outfit min-w-[20px]">{index + 1}.</span>
+          <div className="flex-1">
+            <div className="text-white font-outfit">{winner.name}</div>
+            <div className="text-gray-400 font-outfit text-sm">{winner.phone}</div>
+          </div>
+          <Image 
+            src="/campaign/person.svg" 
+            alt="Winner icon"
+            width={16}
+            height={16}
+            className="ml-auto"
+          />
+        </div>
+      ))}
+    </div>
+
+    {/* Send Notification Button (moved outside the .map) */}
+    <button className="mt-6 w-full py-3 px-4 bg-[#F1B80C] text-black font-bold rounded-lg hover:bg-yellow-500 transition">
+      Send Notification
+    </button>
+  </div>
+)}
+
+              
             </div>
           ))}
         </div>
 
-        {/* Send Notification Button */}
-        <button className="mt-6 w-full py-3 px-4 bg-[#F1B80C] text-black font-bold rounded-lg hover:bg-yellow-500 transition">
-          Send Notification
-        </button>
+   
       </div>
     </div>
   );

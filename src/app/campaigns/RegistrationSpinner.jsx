@@ -15,17 +15,15 @@ const RegistrationSpinner = () => {
     "#B5EAEA", "#98D8C8", "#FDF1C1", "#B5EAEA"
   ];
 
-  // Fetch participants from API
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
-        // Replace with your actual API call
         const response = await fetch('your-api-endpoint');
         const data = await response.json();
         setParticipants(data);
       } catch (error) {
-        console.error("Error fetching participants:", error);
-        // Fallback to default participants
+        console.error("Error fetching partictoipants:", error);
+        // Fallback 
         setParticipants(["John", "Jane", "Mike", "Sarah", "David", "Emily", "Robert", "Lisa"]);
       }
     };
@@ -39,7 +37,7 @@ const RegistrationSpinner = () => {
     setIsSpinning(true);
     setWinner(null);
 
-    const rotations = 10;
+    const rotations = 15;
     const randomAngle = Math.floor(Math.random() * 360);
     const newRotation = currentRotation.current + (360 * rotations) + randomAngle;
     const numberOfSectors = participants.length;
@@ -56,7 +54,6 @@ const RegistrationSpinner = () => {
     animationTimeout.current = setTimeout(() => {
       setIsSpinning(false);
       const normalizedRotation = newRotation % 360;
-      // Corrected winner calculation to match pointer position
       const winningIndex = Math.floor((360 - normalizedRotation + degreePerSector/2) / degreePerSector) % numberOfSectors;
       setWinner(participants[winningIndex]);
       currentRotation.current = newRotation;
@@ -76,11 +73,11 @@ const RegistrationSpinner = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
 
-      <div className="relative w-[500px] h-[500px] mb-10">
+      <div className="relative w-[700px] h-[700px] mb-10">
         {/* Spinner Wheel */}
         <div
           ref={wheelRef}
-          className="w-full h-full rounded-full relative overflow-hidden border-8 border-slate-300"
+          className="w-full h-full rounded-full relative overflow-hidden border-8 border-slate-500"
           style={{ 
             transform: 'rotate(0deg)',
             background: 'transparent'
@@ -88,7 +85,6 @@ const RegistrationSpinner = () => {
         >
           {participants.map((name, index) => {
             const rotation = index * degreePerSector;
-            // Calculate text rotation to always stay upright
             const textRotation = - (currentRotation.current + rotation);
             
             return (
@@ -135,30 +131,30 @@ const RegistrationSpinner = () => {
         <button
           onClick={spinWheel}
           disabled={isSpinning || participants.length === 0}
-          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full z-10 flex border-8 border-white items-center justify-center text-white font-bold shadow-lg ${
-            isSpinning || participants.length === 0 ? 'bg-gray-500 cursor-not-allowed' : 'bg-[#F1B80C] hover:bg-yellow-600'
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full z-10 flex border-8 border-white items-center justify-center text-white font-bold shadow-lg ${
+            isSpinning || participants.length === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-400'
           }`}
         >
-          <span className="text-xl">SPIN</span>
+          <span className="text-xl text-[#C9503D]">SPIN</span>
         </button>
 
-    {/* Pointer with perfect rounded tip */}
-<div className="absolute top-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90px] h-36 z-20">
-  <svg viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M50 100 L100 20 Q95 0 80 0 L20 0 Q5 0 0 20 L50 100 Z"
-      fill="#C9503D"
-      stroke="#FFF"
-      strokeWidth="3"
-    />
-  </svg>
-</div>
+            {/* Pointer*/}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90px] h-36 z-20">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M50 100 L100 20 Q95 0 80 0 L20 0 Q5 0 0 20 L50 100 Z"
+              fill="#C9503D"
+              stroke="#FFF"
+              strokeWidth="3"
+            />
+          </svg>
+        </div>
       </div>
 
       {winner && (
-        <div className="mt-6 p-6 bg-gray-800 rounded-lg text-center border-2 border-[#F1B80C]">
-          <h3 className="text-2xl font-bold text-[#F1B80C]">WINNER!</h3>
-          <p className="text-white text-3xl mt-4 font-extrabold">{winner}</p>
+        <div className="mt-3 px-12 py-4 bg-gray-800 rounded-lg text-center border-2 border-[#F1B80C]">
+          <h3 className="text-xl font-bold text-yellow-500">WINNER!</h3>
+          <p className="text-white text-2xl mt-2 font-extrabold">{winner}</p>
         </div>
       )}
     </div>

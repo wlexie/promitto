@@ -11,11 +11,9 @@ export default function CampaignsPage() {
 
   return (
     <div className="relative font-outfit h-screen w-full overflow-hidden">
-      {/* Full-screen background image using next/image */}
       <div className="absolute inset-0 ">
         
-        
-        {/* 👇 Optional: use this for testing if Next/Image is misbehaving */}
+  
         
         <img
           src="/campaign/bg1.png"
@@ -27,7 +25,6 @@ export default function CampaignsPage() {
 
       {/* Main content container */}
       <div className="relative z-0 flex h-full">
-        {/* Sidebar */}
         <div className="w-[320px]">
           <SideNav />
         </div>
@@ -35,7 +32,7 @@ export default function CampaignsPage() {
         {/* Main Content */}
         <div className="flex-1 flex">
           {/* Left Panel */}
-          <div className="w-[35%] border-r border-gray-200">
+          <div className="w-[33%] border-r border-gray-600">
             <CampaignWinners 
               activeTab={activeTab} 
               setActiveTab={setActiveTab} 
@@ -43,7 +40,7 @@ export default function CampaignsPage() {
           </div>
 
           {/* Right Panel */}
-          <div className="w-[65%]">
+          <div className="w-[67%]">
             {activeTab === 'registration' && <RegistrationSpinner />}
             {activeTab === 'homeDeposits' && <RegistrationSpinner />}
             {activeTab === 'loanRepayment' && <RegistrationSpinner />}
