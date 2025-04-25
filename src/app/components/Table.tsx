@@ -494,158 +494,206 @@ const Table: FC = () => {
             </div>
 
             {/* Hidden Receipt for PDF Generation */}
-            {selectedTransaction.status === "Successful" && (
+            {selectedTransaction?.status === "Successful" && (
               <div
                 id="receipt"
                 style={{
                   opacity: 0,
                   position: "absolute",
                   pointerEvents: "none",
+                  width: "700px",
+                  padding: "40px",
+                  boxSizing: "border-box",
                 }}
-                className="bg-white max-w-[400px] mx-auto p-6 shadow-lg rounded-lg text-gray-700"
+                className="bg-white mx-auto shadow-lg rounded-lg text-gray-700"
               >
-                {/* Logo */}
-                <div className="text-center">
-                  <img src="/logoimage.png" className="w-8 h-8 mx-auto mt-1" />
+                {/* Header */}
+                <div className="text-center mb-1 mt-1">
+                  <img
+                    src="/logoimage.png"
+                    className="w-10 h-10 mx-auto"
+                    alt="Company Logo"
+                  />
+                  <h2 className="text-2xl font-bold text-black mt-3">
+                    {selectedTransaction.senderAmount.toFixed(2)}{" "}
+                    {selectedTransaction.currencyIso3a}
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    Successfully sent to{" "}
+                    <span className="font-semibold text-black">
+                      {selectedTransaction.receiverName}
+                    </span>
+                  </p>
+                  <p className="text-gray-500 mt-0">
+                    on{" "}
+                    <span className="font-semibold text-black">
+                      {selectedTransaction.date}
+                    </span>
+                  </p>
                 </div>
 
-                {/* Amount */}
-                <h2 className="text-2xl font-bold text-black text-center mt-2">
-                  {selectedTransaction.senderAmount.toFixed(2)}{" "}
-                  {selectedTransaction.currencyIso3a}
-                </h2>
-
-                {/* Success Message */}
-                <p className="text-gray-500 text-center">
-                  Successfully sent to{" "}
-                  <span className="font-semibold text-black">
-                    {selectedTransaction.receiverName}
-                  </span>
-                </p>
-                <p className="text-gray-400 text-center">
-                  on{" "}
-                  <span className="font-semibold text-black">
-                    {selectedTransaction.date}
-                  </span>
-                </p>
-
-                {/* Transaction Details */}
-                <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                  <h3 className="font-semibold text-black">
+                {/* Transaction Details - 2 Column Layout */}
+                <div className="bg-gray-50 p-5 rounded-lg mb-3">
+                  <h3 className="font-semibold text-black text-lg mb-3">
                     Transaction Details
                   </h3>
-                  <div className="mt-4 text-sm">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Transaction ID</span>
-                      <span className="text-black">
-                        {selectedTransaction.transactionId}
-                      </span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-gray-500 text-sm">Transaction ID</p>
+                        <p className="text-black text-sm break-all font-semibold">
+                          {selectedTransaction.transactionId}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 text-sm">Channel</p>
+                        <p className="text-sm font-semibold">
+                          {selectedTransaction.transactionType}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 text-sm">Sender Currency</p>
+                        <p className="text-sm font-semibold">
+                          {selectedTransaction.currencyIso3a}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 text-sm">TP Reference</p>
+                        <p className="text-sm font-semibold">
+                          {selectedTransaction.tpReference}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Transaction Key</span>
-                      <span className="text-black">
-                        {selectedTransaction.transactionKey}
-                      </span>
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-gray-500 text-sm">Purpose</p>
+                        <p className="text-sm font-semibold">Transfer</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 text-sm">
+                          Recipient Currency
+                        </p>
+                        <p className="text-sm font-semibold">
+                          {selectedTransaction.receiverCurrencyIso3a}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 text-sm">Settlement Ref</p>
+                        <p className="text-sm font-semibold">
+                          {selectedTransaction.settlementReference}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 text-sm">MPESA Reference</p>
+                        <p className="text-sm font-semibold">
+                          {selectedTransaction.mpesaReference || "N/A"}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Channel</span>
-                      <span>{selectedTransaction.transactionType}</span>
+                  </div>
+
+                  {/* Transaction Key as full-width row */}
+                  <div className="mt-4">
+                    <p className="text-gray-500 text-sm">Transaction Key</p>
+                    <p className="text-black font-semibold text-sm break-all p-2 rounded mt-1">
+                      {selectedTransaction.transactionKey}
+                    </p>
+                  </div>
+
+                  <div className="border-t border-gray-200 my-4"></div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-gray-500 text-sm">Transaction Fee</p>
+                      <p className="text-sm font-semibold">0.00</p>
                     </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Purpose</span>
-                      <span>Transfer</span>
+                    <div>
+                      <p className="text-gray-500 text-sm">Exchange Rate</p>
+                      <p className="text-sm font-semibold">
+                        {selectedTransaction.exchangeRate.toFixed(2)}
+                      </p>
                     </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Sender Currency</span>
-                      <span>{selectedTransaction.currencyIso3a}</span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Recipient Currency</span>
-                      <span>{selectedTransaction.receiverCurrencyIso3a}</span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">TP Reference</span>
-                      <span>{selectedTransaction.tpReference}</span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Settlement Ref</span>
-                      <span>{selectedTransaction.settlementReference}</span>
-                    </div>
-                    <div className="border-t border-gray-300 my-2"></div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Transaction Fee</span>
-                      <span>0.00</span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Exchange Rate</span>
-                      <span>{selectedTransaction.exchangeRate.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Recipient Amount</span>
-                      <span>
+                    <div>
+                      <p className="text-gray-500 text-sm font-semibold">
+                        Recipient Amount
+                      </p>
+                      <p className="text-sm font-semibold">
                         {selectedTransaction.recipientAmount.toFixed(2)}{" "}
                         {selectedTransaction.receiverCurrencyIso3a}
-                      </span>
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Sender Details */}
-                <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                  <h3 className="font-semibold text-black">Sender</h3>
-                  <div className="mt-1 text-sm">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Name</span>
-                      <span className="text-black">
-                        {selectedTransaction.senderName}
-                      </span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Phone</span>
-                      <span>{selectedTransaction.senderPhone}</span>
-                    </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Email</span>
-                      <span>{selectedTransaction.senderEmail}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Receiver Details */}
-                <div className="bg-gray-100 p-4 rounded-lg mt-3">
-                  <h3 className="font-semibold text-black">Receiver</h3>
-                  <div className="mt-1 text-sm">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Name</span>
-                      <span className="text-black">
-                        {selectedTransaction.receiverName}
-                      </span>
-                    </div>
-                    {selectedTransaction.receiverPhone && (
-                      <div className="flex justify-between mb-1">
-                        <span className="text-gray-500">Phone</span>
-                        <span>{selectedTransaction.receiverPhone}</span>
+                {/* Sender & Receiver - Side by Side */}
+                <div className="flex gap-5 mb-5">
+                  <div className="bg-gray-50 p-5 rounded-lg flex-1">
+                    <h3 className="font-semibold text-black text-lg mb-3">
+                      Sender
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-gray-500 text-sm">Name</p>
+                        <p className="text-black text-sm font-semibold">
+                          {selectedTransaction.senderName}
+                        </p>
                       </div>
-                    )}
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-500">Account Number</span>
-                      <span>{selectedTransaction.accountNumber}</span>
+                      <div>
+                        <p className="text-gray-500 text-sm">Phone</p>
+                        <p className="text-sm font-semibold">
+                          {selectedTransaction.senderPhone}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 text-sm">Email</p>
+                        <p className="text-sm font-semibold">
+                          {selectedTransaction.senderEmail}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-5 rounded-lg flex-1">
+                    <h3 className="font-semibold text-black text-lg mb-3">
+                      Receiver
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-gray-500 text-sm">Name</p>
+                        <p className="text-black text-sm font-semibold">
+                          {selectedTransaction.receiverName}
+                        </p>
+                      </div>
+                      {selectedTransaction.receiverPhone && (
+                        <div>
+                          <p className="text-gray-500 text-sm">Phone</p>
+                          <p className="text-sm font-semibold">
+                            {selectedTransaction.receiverPhone}
+                          </p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-gray-500 text-sm">Account Number</p>
+                        <p className="text-sm font-semibold">
+                          {selectedTransaction.accountNumber}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="text-center text-sm mt-2">
+                <div className="text-center text-sm mt-4">
                   <p className="font-semibold">Thank you for using Tuma!</p>
-                  <p className="text-gray-500 italic">
+                  <p className="text-gray-500 italic mt-1">
                     For inquiries or assistance, contact us:
                   </p>
-                  <p className="text-gray-500">support@tuma.com</p>
-                  <p className="text-gray-500">+447-778-024-995</p>
+                  <p className="text-gray-600 mt-1">support@tuma.com</p>
+                  <p className="text-gray-600">+447-778-024-995</p>
                   <a
                     href="https://tuma.com"
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="inline-block -mt-1"
                   >
                     <p className="text-blue-500">tuma.com</p>
                   </a>
