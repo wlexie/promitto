@@ -29,7 +29,7 @@ const Header: FC = () => {
       <header className="flex justify-between items-center bg-none">
         <h1 className="text-3xl font-bold text-secondary">Dashboard</h1>
         <div className="flex items-center gap-4">
-          {/* <button
+          <button
             className="flex items-center gap-2 bg-transparent px-4 py-2 rounded-lg text-gray-600 border"
             onClick={() => setIsDateFilterOpen(true)}
           >
@@ -42,7 +42,7 @@ const Header: FC = () => {
             ) : (
               "Filter by Date"
             )}
-          </button> */}
+          </button>
         </div>
       </header>
 

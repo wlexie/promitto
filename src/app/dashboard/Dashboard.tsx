@@ -100,30 +100,7 @@ export default function Home() {
           <div className="text-red-500 p-4 bg-red-50 rounded-lg">
             Error loading analytics: {error}
           </div>
-          {/* Fallback to hardcoded values if API fails */}
-          <div className="gap-4 grid grid-cols-3 text-lg">
-            <Card
-              icon={
-                <img src="/icon1.svg" alt="Custom Icon" className="w-12 h-12" />
-              }
-              title="Total Amount Transacted"
-              value="KES 450,000.98"
-            />
-            <Card
-              icon={
-                <img src="/icon2.svg" alt="Custom Icon" className="w-12 h-12" />
-              }
-              title="Count of Transactions"
-              value="450"
-            />
-            <Card
-              icon={
-                <img src="/icon3.svg" alt="Custom Icon" className="w-12 h-12" />
-              }
-              title="Total Unique Customers"
-              value="200"
-            />
-          </div>
+
           <div className="grid grid-cols-3 gap-4">
             <AreaChart />
             <Chart />
