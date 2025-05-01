@@ -1,26 +1,20 @@
-"use client"; // ← Important in Next.js App Router
+"use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
-
+import axios from "axios";
 import "@fontsource/poppins";
 
 function Login() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     username: "",
-    password: "",
   });
 
-  const togglePasswordVisibility = () => {
-    setIsPasswordVisible(!isPasswordVisible);
-  };
-
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -28,23 +22,37 @@ function Login() {
     }));
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
-    // Allow any email or phone number (you can add more validation if needed)
-    if (formData.username && formData.password) {
-      // Simulated delay for API call placeholder
-      setTimeout(() => {
-        setLoading(false);
-        router.push("/verify-otp");
-      }, 1000);
-    } else {
+    setError("");
+
+    if (!formData.username) {
+      setError("Please enter your email address");
       setLoading(false);
-      // Optionally show an error message
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://tuma-dev-backend-auth-alb-2099885708.us-east-1.elb.amazonaws.com/api/auth/send-otp/${formData.username}`
+      );
+      
+      console.log("OTP sent successfully:", response.data);
+      router.push(`/verify-otp?email=${encodeURIComponent(formData.username)}`);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const errorMessage = err.response?.data?.message || "Failed to send OTP. Please try again.";
+        setError(errorMessage);
+        console.error("OTP sending failed:", errorMessage);
+      } else {
+        setError("An unexpected error occurred");
+        console.error("OTP sending error:", err);
+      }
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   return (
     <div className="flex flex-wrap">
@@ -78,62 +86,40 @@ function Login() {
             <hr className="my-6" />
           </div>
 
+          {error && (
+            <div className="mx-4 mb-4 text-red-600">
+              {error}
+            </div>
+          )}
+
           <form
             onSubmit={handleSubmit}
             className="flex flex-col pt-3 md:pt-8 mx-4"
           >
             <div className="grid gap-3 md:grid-cols-1">
               <div className="flex-1">
-                <label className="block text-sm text-gray-400">
-                  PHONE NUMBER / EMAIL
+                <label className="block text-lg uppercase mb-3 text-gray-400">
+                  Enter Your Email
                   <span className="text-red-600">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-md border bg-white px-2 py-3 dark:text-black outline-none ring-gray-400 focus:ring-1"
-                  placeholder=""
+                  className="w-full rounded-lg border bg-white px-2 py-4 text-[20px] dark:text-black outline-none ring-gray-400 focus:ring-1"
+                  placeholder="Please Enter Your Email"
                 />
-              </div>
-
-              <div className="flex-1">
-                <label className="block text-sm text-gray-400">
-                  PASSWORD
-                  <span className="text-red-600">*</span>
-                </label>
-                <div className="relative flex items-center">
-                  <input
-                    type={isPasswordVisible ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    placeholder=""
-                    className="block w-full py-3 text-gray-700 placeholder-gray-400/70 bg-white border border-gray-200 rounded-lg pl-5 pr-11 dark:bg-white dark:text-gray-300 dark:border-gray-600 focus:border-gray-400 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute -right-64 text-3xl text-gray-500 focus:outline-none w-1/2"
-                  >
-                    {isPasswordVisible ? (
-                      <IoEyeOutline className="mx-0 text-gray-600 " />
-                    ) : (
-                      <IoEyeOffOutline className="mx-0 text-gray-600" />
-                    )}
-                  </button>
-                </div>
               </div>
             </div>
 
             <button
               type="submit"
-              className="rounded-lg bg-gray-900 dark:bg-[#050505] px-4 py-3 mt-4 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2 flex items-center justify-center"
+              disabled={loading}
+              className="rounded-lg bg-gray-900 dark:bg-[#050505] px-4 py-3 mt-10 text-center text-base font-semibold text-white shadow-md ring-gray-500 ring-offset-2 transition focus:ring-2 flex items-center justify-center"
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? "Sending OTP..." : "Send OTP"}
             </button>
           </form>
 

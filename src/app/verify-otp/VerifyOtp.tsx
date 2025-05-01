@@ -1,38 +1,146 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../store/authSlice";
+import { jwtDecode } from "jwt-decode";
 import "@fontsource/poppins";
+
+interface DecodedToken {
+  lastName: string;
+  clientId: string;
+  roles: string;
+  iss: string;
+  active: string;
+  identityProvider: string;
+  accountKey: string;
+  aud: string;
+  firstName: string;
+  nbf: number;
+  permissions: string[];
+  name: string;
+  exp: number;
+  iat: number;
+  jti: string;
+  email: string;
+}
 
 function VerifyAccount() {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [email, setEmail] = useState<string>("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const dispatch = useDispatch();
 
-  const validateOTP = async (e: any) => {
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    if (emailParam) {
+      setEmail(emailParam);
+    } else {
+      router.push("/");
+    }
+  }, [searchParams, router]);
+
+  const validateOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
 
-    setTimeout(() => {
-      if (otp === "123456") {
+    const requestData = {
+      email: email,
+      verificationCode: otp
+    };
+
+    console.log("Data being sent to API:", {
+      endpoint: "http://tuma-dev-backend-auth-alb-2099885708.us-east-1.elb.amazonaws.com/api/auth/email",
+      requestData: requestData,
+      timestamp: new Date().toISOString()
+    });
+
+    try {
+      const response = await axios.post(
+        "http://tuma-dev-backend-auth-alb-2099885708.us-east-1.elb.amazonaws.com/api/auth/email",
+        requestData
+      );
+
+    /*  console.log("API Response:", {
+        status: response.status,
+        data: response.data,
+        headers: response.headers,
+        timestamp: new Date().toISOString()
+      }); */
+
+      if (response.data.accessToken) {
+        // Decode the token to log its contents
+        const decodedToken = jwtDecode<DecodedToken>(response.data.accessToken);
+       // console.log("Decoded Token:", decodedToken);
+
+        // Prepare the data to be sent to Redux store
+        const authData = {
+          token: response.data.accessToken,
+          refreshToken: response.data.refreshToken,
+          user: {
+            email: decodedToken.email,
+            firstName: decodedToken.firstName,
+            lastName: decodedToken.lastName,
+            roles: decodedToken.roles,
+            permissions: decodedToken.permissions,
+            name: decodedToken.name,
+            clientId: decodedToken.clientId
+          }
+        };
+
+       // console.log("Data being sent to Redux store:", authData);
+
+        // Dispatch credentials to Redux store
+        dispatch(setCredentials({
+          token: response.data.accessToken,
+          refreshToken: response.data.refreshToken
+        }));
+
         setMessage({ type: "success", text: "OTP verified successfully!" });
         setTimeout(() => {
           router.push("/dashboard");
         }, 1000);
       } else {
-        setMessage({ type: "error", text: "Invalid OTP. Please try again." });
+        setMessage({ 
+          type: "error", 
+          text: response.data.message || "Invalid OTP. Please try again." 
+        });
       }
+    } catch (err) {
+      console.error("API Error:", {
+        error: err,
+        timestamp: new Date().toISOString()
+      });
+
+      if (axios.isAxiosError(err)) {
+        console.error("Axios Error Details:", {
+          message: err.message,
+          code: err.code,
+          config: err.config,
+          response: err.response,
+          isAxiosError: err.isAxiosError
+        });
+
+        const errorMessage = err.response?.data?.message || "Failed to verify OTP. Please try again.";
+        setMessage({ type: "error", text: errorMessage });
+      } else {
+        setMessage({ type: "error", text: "An unexpected error occurred" });
+      }
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -54,13 +162,13 @@ function VerifyAccount() {
           />
           <p className="text-left text-3xl font-bold py-6">OTP Verification</p>
           <p className="whitespace-nowrap text-gray-600">
-            Enter the Verification code we just sent to your phone number / email
+            Enter the Verification code we just sent to {email}
           </p>
           <hr className="my-6" />
 
           <div className="flex flex-col justify-start w-full">
-            <form className="items-center">
-              <div className="mb-1 sm:mb-2">
+            <form onSubmit={validateOTP}>
+              <div className="mb-4">
                 <InputOTP
                   maxLength={6}
                   value={otp}
@@ -71,7 +179,7 @@ function VerifyAccount() {
                     {[...Array(6)].map((_, index) => (
                       <InputOTPSlot
                         key={index}
-                        className="mx-2 border rounded-[6px] h-16 w-16 text-xl"
+                        className="mx-6 border rounded-[6px] h-16 w-16 text-xl"
                         index={index}
                       />
                     ))}
@@ -79,7 +187,6 @@ function VerifyAccount() {
                 </InputOTP>
               </div>
 
-              {/* Message Box */}
               {message && (
                 <div
                   className={`my-4 px-4 py-3 text-sm font-medium rounded ${
@@ -92,9 +199,10 @@ function VerifyAccount() {
                 </div>
               )}
 
-              <div className="mt-2 mb-4">
+              <div className="mt-3 mb-4">
                 <button
-                  onClick={validateOTP}
+                  type="submit"
+                  disabled={loading}
                   className="inline-flex w-full py-3 items-center justify-center rounded-lg dark:bg-gray-900 font-medium tracking-wide text-white dark:text-white
                    shadow-md ring-gray-200 transition duration-200 hover:bg-gray-900 bg-gray-700 focus:outline-none focus:ring"
                 >

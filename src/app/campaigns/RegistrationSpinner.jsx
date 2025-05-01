@@ -106,7 +106,7 @@ const RegistrationSpinner = () => {
                   }}
                 >
                   <div
-                    className="absolute text-lg font-bold text-white whitespace-nowrap"
+                    className="absolute text-xl font-thin font-outfit text-gray-900 whitespace-nowr"
                     style={{
                       transform: `rotate(${textRotation}deg)`,
                       transformOrigin: 'center',

@@ -1,14 +1,14 @@
 "use client";
-
-import React from "react";
-import Dashboard from "./Dashboard";
-import "@fontsource/poppins";
+import ProtectedRoute from '../components/ProtectedRoute';
+import Dashboard from './Dashboard';
 
 function page() {
   return (
-    <div>
-      <Dashboard />
-    </div>
+    <ProtectedRoute>
+      <div>
+        <Dashboard />
+      </div>
+    </ProtectedRoute>
   );
 }
 

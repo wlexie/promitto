@@ -1,12 +1,14 @@
 "use client";
-import React from "react";
-import AllTransactions from "./AllTransactions";
+import ProtectedRoute from '../components/ProtectedRoute';
+import AllTransactions from './AllTransactions';
 
 function page() {
   return (
-    <div>
-      <AllTransactions />
-    </div>
+    <ProtectedRoute>
+      <div>
+        <AllTransactions />
+      </div>
+    </ProtectedRoute>
   );
 }
 
